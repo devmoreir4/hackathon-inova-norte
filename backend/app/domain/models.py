@@ -28,6 +28,19 @@ class EventType(str, Enum):
     EDUCATIONAL_ACTIVITY = "educational_activity"
     OTHER = "other"
 
+class CommunityType(str, Enum):
+    """Community types"""
+    PUBLIC = "public"
+    PRIVATE = "private"
+    INVITE_ONLY = "invite_only"
+
+class MembershipRole(str, Enum):
+    """Community membership roles"""
+    OWNER = "owner"
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+    MEMBER = "member"
+
 class User(Base):
     """Cooperative member model"""
     __tablename__ = "users"
@@ -96,3 +109,31 @@ class EventRegistration(Base):
     registered_at = Column(DateTime(timezone=True), server_default=func.now())
     attended = Column(Boolean, default=False)
     feedback = Column(Text, nullable=True)
+
+class Community(Base):
+    """Community model"""
+    __tablename__ = "communities"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    community_type = Column(SQLEnum(CommunityType), default=CommunityType.PUBLIC)
+    owner_id = Column(Integer, nullable=False)  # FK to User
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    active = Column(Boolean, default=True)
+    member_count = Column(Integer, default=0)
+    max_members = Column(Integer, nullable=True)
+    image_url = Column(String(500), nullable=True)
+    rules = Column(Text, nullable=True)
+
+class CommunityMembership(Base):
+    """Community membership model"""
+    __tablename__ = "community_memberships"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    community_id = Column(Integer, nullable=False)  # FK to Community
+    user_id = Column(Integer, nullable=False)       # FK to User
+    role = Column(SQLEnum(MembershipRole), default=MembershipRole.MEMBER)
+    joined_at = Column(DateTime(timezone=True), server_default=func.now())
+    active = Column(Boolean, default=True)

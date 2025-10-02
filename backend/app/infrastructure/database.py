@@ -2,8 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.domain.models import Base
 
-# SQLite database URL
-SQLALCHEMY_DATABASE_URL = "sqlite:///./sicoob_dev.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data/sicoob_dev.db"
 
 # Create engine
 engine = create_engine(

@@ -1,9 +1,40 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
-from app.domain.models import UserType, PostStatus, EventType
+from typing import Optional, Generic, TypeVar, List
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
+from app.domain.models import UserType, PostStatus, EventType, CommunityType, MembershipRole
 
-# User DTOs
+T = TypeVar('T')
+
+# ====== COMMON DTOs ======
+
+class PaginationParams(BaseModel):
+    """Common pagination parameters"""
+    skip: int = Field(0, ge=0, description="Number of items to skip")
+    limit: int = Field(100, ge=1, le=1000, description="Maximum number of items to return")
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Generic paginated response"""
+    items: List[T]
+    total: int
+    skip: int
+    limit: int
+    has_next: bool
+    has_previous: bool
+    
+    @classmethod
+    def create(cls, items: List[T], total: int, skip: int, limit: int):
+        """Create paginated response with calculated fields"""
+        return cls(
+            items=items,
+            total=total,
+            skip=skip,
+            limit=limit,
+            has_next=skip + limit < total,
+            has_previous=skip > 0
+        )
+
+# ====== USER DTOs ======
+
 class UserBase(BaseModel):
     name: str
     email: EmailStr
@@ -27,7 +58,8 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-# Post DTOs
+# ====== FORUM DTOs ======
+
 class PostBase(BaseModel):
     title: str
     content: str
@@ -54,7 +86,6 @@ class PostResponse(PostBase):
     views_count: int
     likes_count: int
 
-# Comment DTOs
 class CommentBase(BaseModel):
     content: str
 
@@ -76,7 +107,8 @@ class CommentResponse(CommentBase):
     updated_at: Optional[datetime] = None
     parent_comment_id: Optional[int] = None
 
-# Event DTOs
+# ====== EVENT DTOs ======
+
 class EventBase(BaseModel):
     title: str
     description: str
@@ -88,7 +120,7 @@ class EventBase(BaseModel):
     max_capacity: Optional[int] = None
 
 class EventCreate(EventBase):
-    pass
+    organizer_id: int
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
@@ -109,7 +141,6 @@ class EventResponse(EventBase):
     organizer_id: int
     created_at: datetime
 
-# Event Registration DTOs
 class EventRegistrationBase(BaseModel):
     feedback: Optional[str] = None
 
@@ -124,3 +155,57 @@ class EventRegistrationResponse(EventRegistrationBase):
     user_id: int
     registered_at: datetime
     attended: bool
+
+# ====== COMMUNITY DTOs ======
+
+class CommunityBase(BaseModel):
+    name: str
+    description: str
+    community_type: CommunityType = CommunityType.PUBLIC
+    max_members: Optional[int] = None
+    image_url: Optional[str] = None
+    rules: Optional[str] = None
+
+class CommunityCreate(CommunityBase):
+    owner_id: int
+
+class CommunityUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    community_type: Optional[CommunityType] = None
+    max_members: Optional[int] = None
+    image_url: Optional[str] = None
+    rules: Optional[str] = None
+    active: Optional[bool] = None
+
+class CommunityResponse(CommunityBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    owner_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    active: bool
+    member_count: int
+
+class CommunityMembershipBase(BaseModel):
+    pass
+
+class CommunityMembershipCreate(CommunityMembershipBase):
+    community_id: int
+    user_id: int
+    role: MembershipRole = MembershipRole.MEMBER
+
+class CommunityMembershipUpdate(BaseModel):
+    role: Optional[MembershipRole] = None
+    active: Optional[bool] = None
+
+class CommunityMembershipResponse(CommunityMembershipBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    community_id: int
+    user_id: int
+    role: MembershipRole
+    joined_at: datetime
+    active: bool

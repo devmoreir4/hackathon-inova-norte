@@ -64,7 +64,6 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
             detail="Post not found"
         )
     
-    # Increment views count
     post.views_count += 1
     db.commit()
     db.refresh(post)
@@ -123,7 +122,6 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     description="Create a new comment on a post"
 )
 def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(get_db)):
-    # Verify post exists
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         raise HTTPException(

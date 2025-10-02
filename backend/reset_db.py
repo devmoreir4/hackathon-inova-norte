@@ -2,8 +2,10 @@ import os
 
 def reset_database():
     db_files = [
-        "sicoob_dev.db",
-        "sicoob_dev.db-journal",
+        "data/sicoob_dev.db",
+        "data/sicoob_dev.db-journal",
+        "data/test.db",
+        "data/test.db-journal",
     ]
     
     removed_count = 0
@@ -14,7 +16,8 @@ def reset_database():
                 print(f"Removed: {db_file}")
                 removed_count += 1
             except PermissionError:
-                print(f"Error: Cannot remove {db_file} - file is in use")
+                print(f"Error: Cannot remove {db_file}")
+                print("Stop the API first, then run this script")
             except Exception as e:
                 print(f"Error removing {db_file}: {e}")
     
