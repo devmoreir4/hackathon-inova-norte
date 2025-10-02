@@ -55,4 +55,3 @@ pytest tests/test_users.py -v
 
 ```bash
 python reset_db.py
-```
