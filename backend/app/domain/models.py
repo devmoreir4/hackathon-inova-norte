@@ -1,11 +1,8 @@
-"""
-Domain models for Sicoob Fluminense
-"""
 from datetime import datetime
 from enum import Enum
 from typing import Optional
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Enum as SQLEnum
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -17,14 +14,11 @@ class UserType(str, Enum):
     RETIREE = "retiree"
     GENERAL = "general"
 
-class ProjectStatus(str, Enum):
-    """Project status"""
-    PROPOSED = "proposed"
-    VOTING = "voting"
-    APPROVED = "approved"
-    IN_EXECUTION = "in_execution"
-    COMPLETED = "completed"
-    REJECTED = "rejected"
+class PostStatus(str, Enum):
+    """Post status"""
+    DRAFT = "draft"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
 
 class EventType(str, Enum):
     """Event types"""
@@ -47,34 +41,33 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class Project(Base):
-    """Social impact project model"""
-    __tablename__ = "projects"
+class Post(Base):
+    """Forum post model"""
+    __tablename__ = "posts"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
-    description = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)
     category = Column(String(100), nullable=False)
-    status = Column(SQLEnum(ProjectStatus), default=ProjectStatus.PROPOSED)
+    status = Column(SQLEnum(PostStatus), default=PostStatus.DRAFT)
     author_id = Column(Integer, nullable=False)  # FK to User
-    proposed_at = Column(DateTime(timezone=True), server_default=func.now())
-    voting_start = Column(DateTime(timezone=True), nullable=True)
-    voting_end = Column(DateTime(timezone=True), nullable=True)
-    votes_for = Column(Integer, default=0)
-    votes_against = Column(Integer, default=0)
-    estimated_budget = Column(String(50), nullable=True)
-    beneficiary_community = Column(String(200), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    published_at = Column(DateTime(timezone=True), nullable=True)
+    views_count = Column(Integer, default=0)
+    likes_count = Column(Integer, default=0)
 
-class Vote(Base):
-    """Project vote model"""
-    __tablename__ = "votes"
+class Comment(Base):
+    """Post comment model"""
+    __tablename__ = "comments"
     
     id = Column(Integer, primary_key=True, index=True)
-    project_id = Column(Integer, nullable=False)  # FK to Project
-    user_id = Column(Integer, nullable=False)     # FK to User
-    vote_for = Column(Boolean, nullable=False)    # True = for, False = against
-    voted_at = Column(DateTime(timezone=True), server_default=func.now())
-    comment = Column(Text, nullable=True)
+    post_id = Column(Integer, nullable=False)  # FK to Post
+    author_id = Column(Integer, nullable=False)  # FK to User
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    parent_comment_id = Column(Integer, nullable=True)  # For nested comments
 
 class Event(Base):
     """Event model"""

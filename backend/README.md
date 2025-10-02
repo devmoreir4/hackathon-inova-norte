@@ -1,14 +1,12 @@
-# Sicoob Fluminense API
+# Sicoob API
 
-API para engajamento comunitário e desenvolvimento sustentável do Sicoob Fluminense.
+API para engajamento comunitário e desenvolvimento sustentável do Sicoob.
 
 ## Funcionalidades
 
 - **Gestão de Cooperados** - CRUD completo de cooperados
-- **Projetos de Impacto Social** - Sistema de proposta e votação
-- **Eventos Comunitários** - Calendário de eventos e feiras
 - **Fórum de Discussões** - Espaço para troca de conhecimento
-- **Chatbot IA** - Educação financeira e suporte
+- **Eventos Comunitários** - Calendário de eventos e feiras
 
 ## Tecnologias
 
@@ -32,10 +30,14 @@ backend/
 │   └── interface/        # Camada web: rotas FastAPI
 │       ├── main.py
 │       ├── routes.py
-│       └── user_routes.py
+│       ├── user_routes.py
+│       └── forum_routes.py
 ├── tests/               # Testes unitários e de integração
 ├── requirements.txt     # Dependências Python
+├── requirements_dev.txt # Dependências de desenvolvimento
 ├── run.py              # Ponto de entrada da aplicação
+├── reset_db.py         # Script para resetar banco de dados
+├── pytest.ini         # Configuração do pytest
 └── README.md           # Este arquivo
 ```
 
@@ -57,7 +59,11 @@ source venv/bin/activate
 ### 2. Instalar Dependências
 
 ```bash
+# Dependências principais
 pip install -r requirements.txt
+
+# Dependências de desenvolvimento (opcional)
+pip install -r requirements_dev.txt
 ```
 
 ### 3. Executar a Aplicação
@@ -77,6 +83,26 @@ uvicorn app.interface.main:app --reload --host 0.0.0.0 --port 5000
 - **Documentação ReDoc**: http://localhost:5000/redoc
 - **Health Check**: http://localhost:5000/health
 
+## Testes
+
+```bash
+# Executar todos os testes
+pytest
+
+# Executar com cobertura
+pytest --cov=app
+
+# Executar testes específicos
+pytest tests/test_users.py -v
+```
+
+## Reset do Banco de Dados
+
+```bash
+# Resetar banco de dados (parar API primeiro)
+python reset_db.py
+```
+
 ## Endpoints Principais
 
 ### Cooperados
@@ -87,15 +113,23 @@ uvicorn app.interface.main:app --reload --host 0.0.0.0 --port 5000
 - `DELETE /api/v1/users/{id}` - Desativar cooperado
 - `GET /api/v1/users/email/{email}` - Buscar por email
 
+### Fórum
+- `GET /api/v1/forum/posts` - Listar posts
+- `POST /api/v1/forum/posts` - Criar post
+- `GET /api/v1/forum/posts/{id}` - Buscar post por ID
+- `PUT /api/v1/forum/posts/{id}` - Atualizar post
+- `DELETE /api/v1/forum/posts/{id}` - Deletar post
+- `POST /api/v1/forum/posts/{id}/comments` - Criar comentário
+- `GET /api/v1/forum/posts/{id}/comments` - Listar comentários
+
 ### Health Check
 - `GET /health` - Status básico da API
-- `GET /health/detailed` - Status detalhado com informações do sistema
 
 ### Modelos Principais
 
 - **User** - Cooperados
-- **Project** - Projetos de impacto social
-- **Vote** - Votos em projetos
+- **Post** - Posts do fórum
+- **Comment** - Comentários nos posts
 - **Event** - Eventos comunitários
 - **EventRegistration** - Inscrições em eventos
 
