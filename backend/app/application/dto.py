@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
-from app.domain.models import UserType, ProjectStatus, EventType
+from pydantic import BaseModel, EmailStr, ConfigDict
+from app.domain.models import UserType, PostStatus, EventType
 
 # User DTOs
 class UserBase(BaseModel):
@@ -20,62 +20,61 @@ class UserUpdate(BaseModel):
     active: Optional[bool] = None
 
 class UserResponse(UserBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
-# Project DTOs
-class ProjectBase(BaseModel):
+# Post DTOs
+class PostBase(BaseModel):
     title: str
-    description: str
+    content: str
     category: str
-    estimated_budget: Optional[str] = None
-    beneficiary_community: Optional[str] = None
 
-class ProjectCreate(ProjectBase):
-    pass
-
-class ProjectUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    category: Optional[str] = None
-    status: Optional[ProjectStatus] = None
-    estimated_budget: Optional[str] = None
-    beneficiary_community: Optional[str] = None
-
-class ProjectResponse(ProjectBase):
-    id: int
-    status: ProjectStatus
+class PostCreate(PostBase):
     author_id: int
-    proposed_at: datetime
-    voting_start: Optional[datetime] = None
-    voting_end: Optional[datetime] = None
-    votes_for: int
-    votes_against: int
 
-    class Config:
-        from_attributes = True
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    status: Optional[PostStatus] = None
 
-# Vote DTOs
-class VoteBase(BaseModel):
-    vote_for: bool
-    comment: Optional[str] = None
-
-class VoteCreate(VoteBase):
-    project_id: int
-
-class VoteResponse(VoteBase):
+class PostResponse(PostBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
-    project_id: int
-    user_id: int
-    voted_at: datetime
+    status: PostStatus
+    author_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    published_at: Optional[datetime] = None
+    views_count: int
+    likes_count: int
 
-    class Config:
-        from_attributes = True
+# Comment DTOs
+class CommentBase(BaseModel):
+    content: str
+
+class CommentCreate(CommentBase):
+    post_id: int
+    author_id: int
+    parent_comment_id: Optional[int] = None
+
+class CommentUpdate(BaseModel):
+    content: Optional[str] = None
+
+class CommentResponse(CommentBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    post_id: int
+    author_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    parent_comment_id: Optional[int] = None
 
 # Event DTOs
 class EventBase(BaseModel):
@@ -103,13 +102,12 @@ class EventUpdate(BaseModel):
     registrations_open: Optional[bool] = None
 
 class EventResponse(EventBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     registrations_open: bool
     organizer_id: int
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 # Event Registration DTOs
 class EventRegistrationBase(BaseModel):
@@ -119,11 +117,10 @@ class EventRegistrationCreate(EventRegistrationBase):
     event_id: int
 
 class EventRegistrationResponse(EventRegistrationBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     event_id: int
     user_id: int
     registered_at: datetime
     attended: bool
-
-    class Config:
-        from_attributes = True

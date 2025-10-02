@@ -22,7 +22,6 @@ user_router = APIRouter(
     description="Register a new cooperative member"
 )
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Check if email already exists
     existing_user = db.query(User).filter(User.email == user.email).first()
     if existing_user:
         raise HTTPException(
@@ -30,7 +29,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
             detail="Email already registered"
         )
     
-    db_user = User(**user.dict())
+    db_user = User(**user.model_dump())
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -80,7 +79,7 @@ def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get
         )
     
     # Update only provided fields
-    update_data = user_update.dict(exclude_unset=True)
+    update_data = user_update.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(user, field, value)
     
