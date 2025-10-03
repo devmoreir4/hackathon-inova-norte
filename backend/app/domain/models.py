@@ -8,20 +8,17 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 class UserType(str, Enum):
-    """Types of cooperative members"""
     YOUNG = "young"
     ENTREPRENEUR = "entrepreneur"
     RETIREE = "retiree"
     GENERAL = "general"
 
 class PostStatus(str, Enum):
-    """Post status"""
     DRAFT = "draft"
     PUBLISHED = "published"
     ARCHIVED = "archived"
 
 class EventType(str, Enum):
-    """Event types"""
     COOPERATIVE_FAIR = "cooperative_fair"
     LECTURE = "lecture"
     BUSINESS_ROUND = "business_round"
@@ -29,20 +26,17 @@ class EventType(str, Enum):
     OTHER = "other"
 
 class CommunityType(str, Enum):
-    """Community types"""
     PUBLIC = "public"
     PRIVATE = "private"
     INVITE_ONLY = "invite_only"
 
 class MembershipRole(str, Enum):
-    """Community membership roles"""
     OWNER = "owner"
     ADMIN = "admin"
     MODERATOR = "moderator"
     MEMBER = "member"
 
 class User(Base):
-    """Cooperative member model"""
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -55,7 +49,6 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class Post(Base):
-    """Forum post model"""
     __tablename__ = "posts"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -71,7 +64,6 @@ class Post(Base):
     likes_count = Column(Integer, default=0)
 
 class Comment(Base):
-    """Post comment model"""
     __tablename__ = "comments"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -83,7 +75,6 @@ class Comment(Base):
     parent_comment_id = Column(Integer, nullable=True)  # For nested comments
 
 class Event(Base):
-    """Event model"""
     __tablename__ = "events"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -100,7 +91,6 @@ class Event(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class EventRegistration(Base):
-    """Event registration model"""
     __tablename__ = "event_registrations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -111,7 +101,6 @@ class EventRegistration(Base):
     feedback = Column(Text, nullable=True)
 
 class Community(Base):
-    """Community model"""
     __tablename__ = "communities"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -128,7 +117,6 @@ class Community(Base):
     rules = Column(Text, nullable=True)
 
 class CommunityMembership(Base):
-    """Community membership model"""
     __tablename__ = "community_memberships"
     
     id = Column(Integer, primary_key=True, index=True)

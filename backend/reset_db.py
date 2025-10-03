@@ -2,10 +2,10 @@ import os
 
 def reset_database():
     db_files = [
-        "data/sicoob_dev.db",
-        "data/sicoob_dev.db-journal",
-        "data/test.db",
-        "data/test.db-journal",
+        "data/db/sicoob_dev.db",
+        "data/db/sicoob_dev.db-journal",
+        "data/db/test.db",
+        "data/db/test.db-journal",
     ]
     
     removed_count = 0
