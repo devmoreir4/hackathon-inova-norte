@@ -9,7 +9,8 @@ from app.interface.routes import (
     user_router,
     community_router,
     event_router,
-    forum_router
+    forum_router,
+    gamification_router
 )
 from app.interface.routes.rag import rag_router
 from app.infrastructure.database import create_tables
@@ -39,4 +40,5 @@ app.include_router(user_router, prefix="/api/v1")
 app.include_router(community_router, prefix="/api/v1")
 app.include_router(event_router, prefix="/api/v1")
 app.include_router(forum_router, prefix="/api/v1")
+app.include_router(gamification_router, prefix="/api/v1")
 app.include_router(rag_router, prefix="/api/v1")

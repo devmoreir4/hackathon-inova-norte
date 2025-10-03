@@ -12,7 +12,8 @@ from app.domain.models import (
     User, UserType, 
     Community, CommunityType, CommunityMembership, MembershipRole,
     Event, EventType, EventRegistration,
-    Post, PostStatus, Comment
+    Post, PostStatus, Comment,
+    UserLevel, Badge, UserBadge, UserPoints
 )
 
 def init_users(db: Session):
@@ -48,24 +49,6 @@ def init_users(db: Session):
             "email": "patricia.lima@sicoob.com.br",
             "phone": "(11) 94321-0987",
             "user_type": UserType.ENTREPRENEUR
-        },
-        {
-            "name": "Roberto da Silva Neto",
-            "email": "roberto.neto@sicoob.com.br",
-            "phone": "(11) 93210-9876",
-            "user_type": UserType.GENERAL
-        },
-        {
-            "name": "Fernanda Alves Pereira",
-            "email": "fernanda.alves@sicoob.com.br",
-            "phone": "(11) 92109-8765",
-            "user_type": UserType.YOUNG
-        },
-        {
-            "name": "Antônio Carlos Mendes",
-            "email": "antonio.mendes@sicoob.com.br",
-            "phone": "(11) 91098-7654",
-            "user_type": UserType.RETIREE
         }
     ]
     
@@ -76,7 +59,6 @@ def init_users(db: Session):
         users.append(user)
     
     db.commit()
-    
     for user in users:
         db.refresh(user)
     
@@ -88,180 +70,113 @@ def init_communities(db: Session, users):
     
     communities_data = [
         {
-            "name": "Jovens Empreendedores",
-            "description": "Comunidade para jovens cooperados compartilharem experiências de empreendedorismo e inovação.",
+            "name": "Empreendedores Sicoob",
+            "description": "Comunidade para empreendedores cooperados compartilharem experiências e oportunidades de negócio.",
             "community_type": CommunityType.PUBLIC,
+            "owner_id": users[0].id,
             "max_members": 100,
-            "owner_id": users[1].id,  # Carlos (jovem)
-            "rules": "1. Seja respeitoso\n2. Compartilhe conhecimento\n3. Ajude outros jovens empreendedores"
+            "rules": "Respeite todos os membros. Mantenha discussões focadas em empreendedorismo e cooperativismo."
         },
         {
-            "name": "Experiência e Sabedoria",
-            "description": "Espaço para cooperados com mais experiência compartilharem conhecimentos e mentorias.",
+            "name": "Jovens Cooperados",
+            "description": "Espaço para jovens cooperados se conectarem e aprenderem sobre cooperativismo.",
             "community_type": CommunityType.PUBLIC,
+            "owner_id": users[1].id,
             "max_members": 50,
-            "owner_id": users[2].id,  # Maria José (aposentada)
-            "rules": "1. Compartilhe experiências\n2. Seja mentor\n3. Pratique a cooperação"
+            "rules": "Comunidade voltada para jovens. Seja respeitoso e construtivo."
         },
         {
-            "name": "Negócios e Oportunidades",
-            "description": "Comunidade privada para discussão de oportunidades de negócios entre empreendedores da cooperativa.",
+            "name": "Educação Financeira",
+            "description": "Grupo focado em educação financeira e planejamento para aposentadoria.",
             "community_type": CommunityType.PRIVATE,
-            "max_members": 30,
-            "owner_id": users[0].id,  # Ana Silva (empreendedora)
-            "rules": "1. Confidencialidade das informações\n2. Parcerias éticas\n3. Transparência nos negócios"
-        },
-        {
-            "name": "Capacitação Financeira",
-            "description": "Grupo para educação financeira e discussão sobre investimentos e economia.",
-            "community_type": CommunityType.PUBLIC,
+            "owner_id": users[2].id,
             "max_members": 200,
-            "owner_id": users[3].id,  # João Paulo
-            "rules": "1. Informações baseadas em fatos\n2. Não aconselhamento financeiro pessoal\n3. Educação em primeiro lugar"
+            "rules": "Compartilhe conhecimento sobre educação financeira. Evite spam."
         }
     ]
     
     communities = []
-    for comm_data in communities_data:
-        community = Community(**comm_data)
+    for community_data in communities_data:
+        community = Community(**community_data)
         db.add(community)
         communities.append(community)
     
     db.commit()
-    
     for community in communities:
         db.refresh(community)
     
     print(f"{len(communities)} communities created!")
     return communities
 
-def init_memberships(db: Session, users, communities):
-    print("Creating memberships...")
+def init_community_memberships(db: Session, users, communities):
+    print("Creating community memberships...")
     
-    memberships_count = 0
+    memberships_data = [
+        # Empreendedores Sicoob community
+        {"community_id": communities[0].id, "user_id": users[0].id, "role": MembershipRole.OWNER},
+        {"community_id": communities[0].id, "user_id": users[1].id, "role": MembershipRole.MEMBER},
+        {"community_id": communities[0].id, "user_id": users[4].id, "role": MembershipRole.MEMBER},
+        
+        # Jovens Cooperados community
+        {"community_id": communities[1].id, "user_id": users[1].id, "role": MembershipRole.OWNER},
+        {"community_id": communities[1].id, "user_id": users[0].id, "role": MembershipRole.MEMBER},
+        {"community_id": communities[1].id, "user_id": users[3].id, "role": MembershipRole.MEMBER},
+        
+        # Educação Financeira community
+        {"community_id": communities[2].id, "user_id": users[2].id, "role": MembershipRole.OWNER},
+        {"community_id": communities[2].id, "user_id": users[0].id, "role": MembershipRole.MEMBER},
+        {"community_id": communities[2].id, "user_id": users[3].id, "role": MembershipRole.MEMBER},
+        {"community_id": communities[2].id, "user_id": users[4].id, "role": MembershipRole.MEMBER},
+    ]
     
-    # Add owners as members with OWNER role
-    for community in communities:
-        membership = CommunityMembership(
-            community_id=community.id,
-            user_id=community.owner_id,
-            role=MembershipRole.OWNER
-        )
+    memberships = []
+    for membership_data in memberships_data:
+        membership = CommunityMembership(**membership_data)
         db.add(membership)
-        memberships_count += 1
-    
-    # Add other members to public communities
-    public_communities = [c for c in communities if c.community_type == CommunityType.PUBLIC]
-    
-    # Young Entrepreneurs - add young and entrepreneur types
-    young_entrepre_comm = next(c for c in communities if "Jovens" in c.name)
-    for user in users:
-        if user.user_type in [UserType.YOUNG, UserType.ENTREPRENEUR] and user.id != young_entrepre_comm.owner_id:
-            membership = CommunityMembership(
-                community_id=young_entrepre_comm.id,
-                user_id=user.id,
-                role=MembershipRole.MEMBER if user.user_type == UserType.YOUNG else MembershipRole.MODERATOR
-            )
-            db.add(membership)
-            memberships_count += 1
-    
-    # Experience and Wisdom - add retirees and some general types
-    exp_comm = next(c for c in communities if "Experiência" in c.name)
-    for user in users:
-        if user.user_type in [UserType.RETIREE, UserType.GENERAL] and user.id != exp_comm.owner_id:
-            membership = CommunityMembership(
-                community_id=exp_comm.id,
-                user_id=user.id,
-                role=MembershipRole.MEMBER
-            )
-            db.add(membership)
-            memberships_count += 1
-    
-    # Financial Education - add all types
-    cap_comm = next(c for c in communities if "Capacitação" in c.name)
-    for user in users[:6]:  # Add first 6 users
-        if user.id != cap_comm.owner_id:
-            membership = CommunityMembership(
-                community_id=cap_comm.id,
-                user_id=user.id,
-                role=MembershipRole.MEMBER
-            )
-            db.add(membership)
-            memberships_count += 1
+        memberships.append(membership)
     
     db.commit()
+    for membership in memberships:
+        db.refresh(membership)
     
-    # Update member counts
-    for community in communities:
-        member_count = db.query(CommunityMembership).filter(
-            CommunityMembership.community_id == community.id,
-            CommunityMembership.active == True
-        ).count()
-        community.member_count = member_count
-    
-    db.commit()
-    
-    print(f"{memberships_count} memberships created!")
+    print(f"{len(memberships)} community memberships created!")
+    return memberships
 
 def init_events(db: Session, users):
     print("Creating events...")
     
-    now = datetime.now()
-    
     events_data = [
         {
-            "title": "Feira de Cooperativismo 2025",
-            "description": "Grande feira anual de cooperativismo com exposições, palestras e networking entre cooperados.",
-            "event_type": EventType.COOPERATIVE_FAIR,
-            "start_date": now + timedelta(days=30),
-            "end_date": now + timedelta(days=32),
-            "location": "Centro de Convenções Sicoob",
-            "address": "Av. das Cooperativas, 1000 - Centro",
-            "max_capacity": 500,
+            "title": "Workshop de Educação Financeira",
+            "description": "Aprenda sobre planejamento financeiro, investimentos e aposentadoria com especialistas do Sicoob.",
+            "event_type": EventType.EDUCATIONAL_ACTIVITY,
+            "start_date": datetime.now() + timedelta(days=7),
+            "end_date": datetime.now() + timedelta(days=7, hours=3),
+            "location": "Auditório Sicoob Centro",
+            "address": "Rua das Flores, 123 - Centro",
+            "max_capacity": 50,
             "organizer_id": users[0].id
         },
         {
-            "title": "Palestra: Educação Financeira para Jovens",
-            "description": "Palestra especial sobre planejamento financeiro e investimentos para jovens cooperados.",
-            "event_type": EventType.LECTURE,
-            "start_date": now + timedelta(days=15),
-            "end_date": now + timedelta(days=15, hours=2),
-            "location": "Auditório Principal Sicoob",
-            "address": "Rua da Cooperação, 500 - Centro",
+            "title": "Feira de Negócios Cooperativos",
+            "description": "Evento para networking entre cooperados empreendedores e apresentação de oportunidades de negócio.",
+            "event_type": EventType.COOPERATIVE_FAIR,
+            "start_date": datetime.now() + timedelta(days=14),
+            "end_date": datetime.now() + timedelta(days=14, hours=6),
+            "location": "Centro de Convenções",
+            "address": "Av. Principal, 456 - Centro",
             "max_capacity": 100,
             "organizer_id": users[1].id
         },
         {
-            "title": "Rodada de Negócios - Agronegócio",
-            "description": "Encontro entre cooperados do agronegócio para discussão de parcerias e oportunidades de negócios.",
-            "event_type": EventType.BUSINESS_ROUND,
-            "start_date": now + timedelta(days=45),
-            "end_date": now + timedelta(days=45, hours=4),
-            "location": "Sala de Reuniões Executiva",
-            "address": "Rua da Cooperação, 500 - Sala 201",
-            "max_capacity": 25,
-            "organizer_id": users[4].id
-        },
-        {
-            "title": "Workshop: Cooperativismo Digital",
-            "description": "Atividade educativa sobre transformação digital no cooperativismo e ferramentas tecnológicas.",
-            "event_type": EventType.EDUCATIONAL_ACTIVITY,
-            "start_date": now + timedelta(days=7),
-            "end_date": now + timedelta(days=7, hours=3),
-            "location": "Laboratório de Informática",
-            "address": "Rua da Cooperação, 500 - Térreo",
+            "title": "Palestra: O Futuro do Cooperativismo",
+            "description": "Discussão sobre tendências e inovações no cooperativismo brasileiro.",
+            "event_type": EventType.LECTURE,
+            "start_date": datetime.now() + timedelta(days=21),
+            "end_date": datetime.now() + timedelta(days=21, hours=2),
+            "location": "Sala de Conferências Sicoob",
+            "address": "Rua das Palmeiras, 789 - Centro",
             "max_capacity": 30,
-            "organizer_id": users[6].id
-        },
-        {
-            "title": "Encontro Mensal dos Aposentados",
-            "description": "Encontro social mensal para cooperados aposentados compartilharem experiências e confraternizarem.",
-            "event_type": EventType.OTHER,
-            "start_date": now + timedelta(days=20),
-            "end_date": now + timedelta(days=20, hours=3),
-            "location": "Sala de Convivência",
-            "address": "Rua da Cooperação, 500 - 1º Andar",
-            "max_capacity": 40,
             "organizer_id": users[2].id
         }
     ]
@@ -273,7 +188,6 @@ def init_events(db: Session, users):
         events.append(event)
     
     db.commit()
-    
     for event in events:
         db.refresh(event)
     
@@ -283,46 +197,47 @@ def init_events(db: Session, users):
 def init_event_registrations(db: Session, users, events):
     print("Creating event registrations...")
     
-    registrations_count = 0
-    
-    # Register some users to each event
-    for event in events:
-        users_to_register = users[:min(5, len(users))]
+    registrations_data = [
+        # Workshop de Educação Financeira
+        {"event_id": events[0].id, "user_id": users[0].id, "attended": True, "feedback": "Excelente workshop, aprendi muito sobre investimentos!"},
+        {"event_id": events[0].id, "user_id": users[2].id, "attended": True, "feedback": "Muito esclarecedor para planejamento da aposentadoria."},
+        {"event_id": events[0].id, "user_id": users[3].id, "attended": False, "feedback": None},
         
-        for user in users_to_register:
-            if user.id != event.organizer_id:  # Organizer doesn't register
-                registration = EventRegistration(
-                    event_id=event.id,
-                    user_id=user.id,
-                    attended=False if event.start_date > datetime.now() else True
-                )
-                db.add(registration)
-                registrations_count += 1
+        # Feira de Negócios Cooperativos
+        {"event_id": events[1].id, "user_id": users[1].id, "attended": True, "feedback": "Ótima oportunidade de networking!"},
+        {"event_id": events[1].id, "user_id": users[4].id, "attended": True, "feedback": "Consegui fechar uma parceria importante."},
+        {"event_id": events[1].id, "user_id": users[0].id, "attended": False, "feedback": None},
+        
+        # Palestra: O Futuro do Cooperativismo
+        {"event_id": events[2].id, "user_id": users[2].id, "attended": True, "feedback": "Palestra muito inspiradora sobre o futuro do cooperativismo."},
+        {"event_id": events[2].id, "user_id": users[1].id, "attended": True, "feedback": "Adorei as discussões sobre tecnologia no cooperativismo."},
+    ]
+    
+    registrations = []
+    for registration_data in registrations_data:
+        registration = EventRegistration(**registration_data)
+        db.add(registration)
+        registrations.append(registration)
     
     db.commit()
-    print(f"{registrations_count} event registrations created!")
+    for registration in registrations:
+        db.refresh(registration)
+    
+    print(f"{len(registrations)} event registrations created!")
+    return registrations
 
 def init_forum_posts(db: Session, users):
     print("Creating forum posts...")
     
     posts_data = [
         {
-            "title": "Dicas para jovens empreendedores iniciantes",
-            "content": "Olá pessoal! Gostaria de compartilhar algumas dicas importantes para quem está começando no empreendedorismo:\n\n1. Validem sempre a ideia antes de investir\n2. Conheçam bem o público-alvo\n3. Façam um planejamento financeiro realista\n4. Busquem mentoria de empreendedores experientes\n\nQuais outras dicas vocês dariam?",
-            "category": "empreendedorismo",
+            "title": "Dicas para economizar no dia a dia",
+            "content": "Compartilho algumas estratégias que uso para economizar e investir melhor meu dinheiro. O que vocês fazem para economizar?",
+            "category": "educacao-financeira",
             "author_id": users[0].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 45,
             "likes_count": 12
-        },
-        {
-            "title": "Como o cooperativismo mudou minha vida",
-            "content": "Há 30 anos faço parte desta cooperativa e posso dizer que foi uma das melhores decisões da minha vida. Através do cooperativismo aprendi valores como solidariedade, democracia e responsabilidade social.\n\nVi minha comunidade crescer, meus filhos se desenvolverem com valores sólidos e meu negócio prosperar com o apoio dos cooperados.\n\nGostaria de ouvir outras histórias de como o cooperativismo impactou positivamente a vida de vocês!",
-            "category": "experiencias",
-            "author_id": users[2].id,
-            "status": PostStatus.PUBLISHED,
-            "views_count": 67,
-            "likes_count": 23
         },
         {
             "title": "Oportunidade de parceria - Agricultura orgânica",
@@ -344,25 +259,22 @@ def init_forum_posts(db: Session, users):
         },
         {
             "title": "Tecnologia no cooperativismo: O futuro é agora",
-            "content": "Como jovem cooperada, vejo muitas oportunidades para implementarmos tecnologia em nossos processos. Apps, automação, IA podem revolucionar como fazemos cooperativismo.\n\nGostaria de propor a criação de um grupo de inovação tecnológica na nossa cooperativa. Podemos discutir ideias como:\n\n- App para gestão de benefícios\n- Plataforma de networking entre cooperados\n- Sistema de gamificação para participação\n- Ferramentas de educação financeira digital\n\nQuem toparia participar?",
+            "content": "Como jovens cooperados, precisamos estar atentos às inovações tecnológicas que podem revolucionar o cooperativismo.\n\nBlockchain, fintechs, inteligência artificial... Como vocês veem essas tecnologias impactando nosso setor?\n\nVamos discutir ideias e oportunidades!",
             "category": "tecnologia",
-            "author_id": users[6].id,
+            "author_id": users[1].id,
             "status": PostStatus.PUBLISHED,
-            "views_count": 78,
+            "views_count": 67,
             "likes_count": 19
         }
     ]
     
     posts = []
     for post_data in posts_data:
-        # Adjust publication dates
-        post_data["published_at"] = datetime.now() - timedelta(days=len(posts) + 1)
         post = Post(**post_data)
         db.add(post)
         posts.append(post)
     
     db.commit()
-    
     for post in posts:
         db.refresh(post)
     
@@ -373,60 +285,45 @@ def init_forum_comments(db: Session, users, posts):
     print("Creating forum comments...")
     
     comments_data = [
-        # Comments on entrepreneurship tips post
         {
-            "content": "Excelentes dicas! Eu acrescentaria: nunca desistam no primeiro obstáculo. A persistência é fundamental no empreendedorismo.",
             "post_id": posts[0].id,
-            "author_id": users[1].id
+            "author_id": users[1].id,
+            "content": "Excelente post! Eu também uso a regra dos 50-30-20 para organizar meus gastos. Funciona muito bem!"
         },
         {
-            "content": "Concordo plenamente! Mentoria foi essencial no meu crescimento. Oferecemos mentoria gratuita na nossa comunidade de jovens empreendedores.",
             "post_id": posts[0].id,
-            "author_id": users[4].id
+            "author_id": users[2].id,
+            "content": "Ótimas dicas! A dica do controle de gastos por categoria é fundamental. Uso um app para isso."
         },
-        
-        # Comments on cooperativism post
         {
-            "content": "Que história inspiradora! O cooperativismo realmente transforma vidas. Estou há 5 anos na cooperativa e já vejo os benefícios.",
             "post_id": posts[1].id,
-            "author_id": users[3].id
+            "author_id": users[0].id,
+            "content": "Interessante proposta! Tenho experiência em logística e posso ajudar com a distribuição. Vamos conversar!"
         },
         {
-            "content": "Obrigada por compartilhar sua experiência! Como jovem cooperada, me sinto motivada a continuar participando ativamente.",
             "post_id": posts[1].id,
-            "author_id": users[6].id
-        },
-        
-        # Comments on partnership post
-        {
-            "content": "Interessante projeto! Tenho experiência em marketing digital para produtos orgânicos. Podemos conversar?",
-            "post_id": posts[2].id,
-            "author_id": users[0].id
-        },
-        
-        # Comments on financial education post
-        {
-            "content": "Ótimo roteiro! Você poderia recomendar algum livro específico para iniciantes?",
-            "post_id": posts[3].id,
-            "author_id": users[1].id
-        },
-        {
-            "content": "Recomendo começar com 'Pai Rico, Pai Pobre' e depois partir para livros mais específicos sobre investimentos.",
-            "post_id": posts[3].id,
             "author_id": users[3].id,
-            "parent_comment_id": None  # Será atualizado após criar o comentário anterior
-        },
-        
-        # Comments on technology post
-        {
-            "content": "Ideia fantástica! Como desenvolvedor, posso ajudar com a parte técnica. Vamos formar esse grupo!",
-            "post_id": posts[4].id,
-            "author_id": users[5].id
+            "content": "Agricultura orgânica é um mercado em crescimento. Boa sorte com o projeto!"
         },
         {
-            "content": "Adorei a proposta! A gamificação pode aumentar muito o engajamento dos cooperados.",
-            "post_id": posts[4].id,
-            "author_id": users[2].id
+            "post_id": posts[2].id,
+            "author_id": users[0].id,
+            "content": "Perfeito roteiro! Concordo que começar pela organização pessoal é fundamental."
+        },
+        {
+            "post_id": posts[2].id,
+            "author_id": users[4].id,
+            "content": "Adorei as dicas! Você poderia me indicar alguns livros sobre investimentos?"
+        },
+        {
+            "post_id": posts[3].id,
+            "author_id": users[0].id,
+            "content": "Blockchain pode revolucionar a transparência nas cooperativas. Muito interessante!"
+        },
+        {
+            "post_id": posts[3].id,
+            "author_id": users[2].id,
+            "content": "IA pode ajudar muito na análise de crédito e gestão de riscos. O futuro é promissor!"
         }
     ]
     
@@ -437,54 +334,246 @@ def init_forum_comments(db: Session, users, posts):
         comments.append(comment)
     
     db.commit()
-    
     for comment in comments:
         db.refresh(comment)
     
-    # Create a reply to comment (nested comment)
-    reply_comment = Comment(
-        content="Exatamente! E depois dele, recomendo 'O Investidor Inteligente' do Benjamin Graham.",
-        post_id=posts[3].id,
-        author_id=users[2].id,
-        parent_comment_id=comments[6].id  # Reply to book recommendation comment
-    )
-    db.add(reply_comment)
-    db.commit()
+    print(f"{len(comments)} forum comments created!")
+    return comments
+
+def init_gamification_badges(db: Session):
+    print("Creating gamification badges...")
     
-    print(f"{len(comments) + 1} forum comments created!")
+    badges_data = [
+        {
+            "name": "Primeiro Passo",
+            "description": "Criou sua primeira conta no sistema",
+            "icon_url": "https://example.com/badges/first-step.png",
+            "points_required": 0,
+            "category": "welcome"
+        },
+        {
+            "name": "Iniciante do Fórum",
+            "description": "Criou seu primeiro post no fórum",
+            "icon_url": "https://example.com/badges/forum-beginner.png",
+            "points_required": 10,
+            "category": "forum"
+        },
+        {
+            "name": "Comentarista Ativo",
+            "description": "Fez 10 comentários no fórum",
+            "icon_url": "https://example.com/badges/active-commenter.png",
+            "points_required": 50,
+            "category": "forum"
+        },
+        {
+            "name": "Participante de Eventos",
+            "description": "Participou de seu primeiro evento",
+            "icon_url": "https://example.com/badges/event-participant.png",
+            "points_required": 15,
+            "category": "events"
+        },
+        {
+            "name": "Membro da Comunidade",
+            "description": "Entrou em sua primeira comunidade",
+            "icon_url": "https://example.com/badges/community-member.png",
+            "points_required": 8,
+            "category": "community"
+        },
+        {
+            "name": "Líder de Comunidade",
+            "description": "Criou uma comunidade",
+            "icon_url": "https://example.com/badges/community-leader.png",
+            "points_required": 20,
+            "category": "community"
+        },
+        {
+            "name": "Educador Financeiro",
+            "description": "Compartilhou conhecimento sobre educação financeira",
+            "icon_url": "https://example.com/badges/financial-educator.png",
+            "points_required": 100,
+            "category": "education"
+        },
+        {
+            "name": "Empreendedor Ativo",
+            "description": "Participou ativamente de discussões sobre negócios",
+            "icon_url": "https://example.com/badges/active-entrepreneur.png",
+            "points_required": 150,
+            "category": "business"
+        },
+        {
+            "name": "Cooperado Exemplar",
+            "description": "Alcançou 1000 pontos de experiência",
+            "icon_url": "https://example.com/badges/exemplary-member.png",
+            "points_required": 1000,
+            "category": "achievement"
+        },
+        {
+            "name": "Mentor da Comunidade",
+            "description": "Ajudou outros cooperados com conselhos valiosos",
+            "icon_url": "https://example.com/badges/community-mentor.png",
+            "points_required": 500,
+            "category": "mentorship"
+        }
+    ]
+    
+    badges = []
+    for badge_data in badges_data:
+        badge = Badge(**badge_data)
+        db.add(badge)
+        badges.append(badge)
+    
+    db.commit()
+    for badge in badges:
+        db.refresh(badge)
+    
+    print(f"{len(badges)} badges created!")
+    return badges
+
+def init_gamification_data(db: Session, users, posts, events):
+    print("Creating gamification data...")
+    
+    # Create user levels
+    user_levels = []
+    for i, user in enumerate(users):
+        # Give different starting points to make it interesting
+        base_points = (i + 1) * 50
+        level = UserLevel(
+            user_id=user.id,
+            level=1,
+            experience_points=base_points,
+            total_points=base_points
+        )
+        db.add(level)
+        user_levels.append(level)
+    
+    db.commit()
+    for level in user_levels:
+        db.refresh(level)
+    
+    # Create some user points records
+    points_data = [
+        # User 0 (Ana) - Entrepreneur
+        {"user_id": users[0].id, "points": 10, "source": "forum_post", "source_id": posts[0].id, "description": "Criou post sobre economia"},
+        {"user_id": users[0].id, "points": 5, "source": "forum_comment", "source_id": posts[1].id, "description": "Comentou em post de negócios"},
+        {"user_id": users[0].id, "points": 15, "source": "event_attendance", "source_id": events[0].id, "description": "Participou de workshop"},
+        
+        # User 1 (Carlos) - Young
+        {"user_id": users[1].id, "points": 10, "source": "forum_post", "source_id": posts[3].id, "description": "Criou post sobre tecnologia"},
+        {"user_id": users[1].id, "points": 5, "source": "forum_comment", "source_id": posts[0].id, "description": "Comentou em post de educação financeira"},
+        {"user_id": users[1].id, "points": 8, "source": "community_join", "source_id": 1, "description": "Entrou na comunidade de jovens"},
+        
+        # User 2 (Maria) - Retiree
+        {"user_id": users[2].id, "points": 5, "source": "forum_comment", "source_id": posts[0].id, "description": "Comentou em post sobre economia"},
+        {"user_id": users[2].id, "points": 15, "source": "event_attendance", "source_id": events[2].id, "description": "Participou de palestra"},
+        
+        # User 3 (João) - General
+        {"user_id": users[3].id, "points": 10, "source": "forum_post", "source_id": posts[2].id, "description": "Criou post sobre educação financeira"},
+        {"user_id": users[3].id, "points": 5, "source": "forum_comment", "source_id": posts[1].id, "description": "Comentou em post de negócios"},
+        
+        # User 4 (Patricia) - Entrepreneur
+        {"user_id": users[4].id, "points": 10, "source": "forum_post", "source_id": posts[1].id, "description": "Criou post sobre parceria"},
+        {"user_id": users[4].id, "points": 5, "source": "forum_comment", "source_id": posts[2].id, "description": "Comentou em post de educação financeira"},
+        {"user_id": users[4].id, "points": 20, "source": "community_create", "source_id": 1, "description": "Criou comunidade de empreendedores"},
+    ]
+    
+    user_points = []
+    for point_data in points_data:
+        point = UserPoints(**point_data)
+        db.add(point)
+        user_points.append(point)
+    
+    db.commit()
+    for point in user_points:
+        db.refresh(point)
+    
+    print(f"{len(user_points)} user points records created!")
+    return user_points
+
+def init_user_badges(db: Session, users, badges):
+    print("Creating user badges...")
+    
+    user_badges_data = [
+        # Ana (User 0) - Entrepreneur with high activity
+        {"user_id": users[0].id, "badge_id": badges[0].id},  # Primeiro Passo
+        {"user_id": users[0].id, "badge_id": badges[1].id},  # Iniciante do Fórum
+        {"user_id": users[0].id, "badge_id": badges[3].id},  # Participante de Eventos
+        {"user_id": users[0].id, "badge_id": badges[4].id},  # Membro da Comunidade
+        {"user_id": users[0].id, "badge_id": badges[6].id},  # Educador Financeiro
+        
+        # Carlos (User 1) - Young with tech focus
+        {"user_id": users[1].id, "badge_id": badges[0].id},  # Primeiro Passo
+        {"user_id": users[1].id, "badge_id": badges[1].id},  # Iniciante do Fórum
+        {"user_id": users[1].id, "badge_id": badges[3].id},  # Participante de Eventos
+        {"user_id": users[1].id, "badge_id": badges[4].id},  # Membro da Comunidade
+        
+        # Maria (User 2) - Retiree with education focus
+        {"user_id": users[2].id, "badge_id": badges[0].id},  # Primeiro Passo
+        {"user_id": users[2].id, "badge_id": badges[3].id},  # Participante de Eventos
+        {"user_id": users[2].id, "badge_id": badges[4].id},  # Membro da Comunidade
+        
+        # João (User 3) - General user
+        {"user_id": users[3].id, "badge_id": badges[0].id},  # Primeiro Passo
+        {"user_id": users[3].id, "badge_id": badges[1].id},  # Iniciante do Fórum
+        {"user_id": users[3].id, "badge_id": badges[4].id},  # Membro da Comunidade
+        
+        # Patricia (User 4) - Entrepreneur with business focus
+        {"user_id": users[4].id, "badge_id": badges[0].id},  # Primeiro Passo
+        {"user_id": users[4].id, "badge_id": badges[1].id},  # Iniciante do Fórum
+        {"user_id": users[4].id, "badge_id": badges[4].id},  # Membro da Comunidade
+        {"user_id": users[4].id, "badge_id": badges[5].id},  # Líder de Comunidade
+        {"user_id": users[4].id, "badge_id": badges[7].id},  # Empreendedor Ativo
+    ]
+    
+    user_badges = []
+    for user_badge_data in user_badges_data:
+        user_badge = UserBadge(**user_badge_data)
+        db.add(user_badge)
+        user_badges.append(user_badge)
+    
+    db.commit()
+    for user_badge in user_badges:
+        db.refresh(user_badge)
+    
+    print(f"{len(user_badges)} user badges created!")
+    return user_badges
 
 def main():
-    print("Initializing database with mock data...")
-    print("=" * 60)
+    print("Initializing database with sample data...")
     
-    os.makedirs("data", exist_ok=True)
-    os.makedirs("data/db", exist_ok=True)
-    
-    print("Creating tables...")
+    # Create tables
     create_tables()
-    print("Tables created!")
     
+    # Create session
     db = SessionLocal()
     
     try:
+        # Initialize data
         users = init_users(db)
         communities = init_communities(db, users)
-        init_memberships(db, users, communities)
+        community_memberships = init_community_memberships(db, users, communities)
         events = init_events(db, users)
-        init_event_registrations(db, users, events)
+        event_registrations = init_event_registrations(db, users, events)
         posts = init_forum_posts(db, users)
-        init_forum_comments(db, users, posts)
+        comments = init_forum_comments(db, users, posts)
+        badges = init_gamification_badges(db)
+        user_badges = init_user_badges(db, users, badges)
+        gamification_data = init_gamification_data(db, users, posts, events)
         
-        print("=" * 60)
-        print("Database initialized successfully!")
-        print("\nSummary of created data:")
-        print(f"   {len(users)} users")
-        print(f"   {len(communities)} communities")
-        print(f"   {len(events)} events")
-        print(f"   {len(posts)} forum posts")
+        print("\nDatabase initialization completed successfully!")
+        print(f"Summary:")
+        print(f"   - Users: {len(users)}")
+        print(f"   - Communities: {len(communities)}")
+        print(f"   - Community Memberships: {len(community_memberships)}")
+        print(f"   - Events: {len(events)}")
+        print(f"   - Event Registrations: {len(event_registrations)}")
+        print(f"   - Forum Posts: {len(posts)}")
+        print(f"   - Forum Comments: {len(comments)}")
+        print(f"   - Badges: {len(badges)}")
+        print(f"   - User Badges: {len(user_badges)}")
+        print(f"   - Gamification Records: {len(gamification_data)}")
         
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        print(f"Error during initialization: {e}")
         db.rollback()
         raise
     finally:
