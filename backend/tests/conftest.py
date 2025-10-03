@@ -6,7 +6,7 @@ from app.interface import app
 from app.infrastructure.database import get_db
 from app.domain.models import Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./data/test.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data/db/test.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
@@ -22,7 +22,6 @@ def override_get_db():
     finally:
         db.close()
 
-# Override database dependency
 app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="function")
