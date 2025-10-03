@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:frontend/app/features/auth/screens/login_screen.dart';
+import 'package:frontend/app/features/community/screens/community_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -17,6 +18,17 @@ class AppDrawer extends StatelessWidget {
           _buildDrawerItem(icon: Icons.credit_card, text: 'Cartões', onTap: () {}),
           _buildDrawerItem(icon: Icons.pix, text: 'Pix', onTap: () {}),
           _buildDrawerItem(icon: Icons.bar_chart, text: 'Investimentos', onTap: () {}),
+          _buildDrawerItem(
+            icon: Icons.group, 
+            text: 'Comunidade', 
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CommunityScreen()),
+              );
+            }
+          ),
           const Divider(color: Color(0xFF004B44)),
           _buildDrawerItem(
             icon: Icons.exit_to_app, 
