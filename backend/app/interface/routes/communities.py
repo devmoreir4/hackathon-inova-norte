@@ -8,6 +8,7 @@ from app.application.dto import (
     CommunityCreate, CommunityUpdate, CommunityResponse,
     CommunityMembershipCreate, CommunityMembershipUpdate, CommunityMembershipResponse
 )
+from app.application.services.gamification_service import GamificationService
 
 community_router = APIRouter(prefix="/communities", tags=["Communities"])
 
@@ -43,6 +44,14 @@ def create_community(community: CommunityCreate, db: Session = Depends(get_db)):
     db_community.member_count = 1
     db.commit()
     db.refresh(db_community)
+    
+    gamification_service = GamificationService(db)
+    gamification_service.add_points(
+        user_id=community.owner_id,
+        source="community_create",
+        source_id=db_community.id,
+        description=f"Criou comunidade: {db_community.name}"
+    )
     
     return db_community
 
@@ -233,6 +242,15 @@ def join_community(
     
     db.commit()
     db.refresh(membership)
+    
+    gamification_service = GamificationService(db)
+    gamification_service.add_points(
+        user_id=user_id,
+        source="community_join",
+        source_id=community_id,
+        description=f"Entrou na comunidade: {community.name}"
+    )
+    
     return membership
 
 @community_router.get(
@@ -342,7 +360,7 @@ def remove_member(
         )
     
     # Check permissions (owner, admin, or the member themselves)
-    if membership.user_id != user_id:  # If not leaving themselves
+    if membership.user_id != user_id:
         requester_membership = db.query(CommunityMembership).filter(
             CommunityMembership.community_id == community_id,
             CommunityMembership.user_id == user_id,

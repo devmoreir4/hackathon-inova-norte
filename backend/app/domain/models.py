@@ -125,3 +125,47 @@ class CommunityMembership(Base):
     role = Column(SQLEnum(MembershipRole), default=MembershipRole.MEMBER)
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
     active = Column(Boolean, default=True)
+
+# ====== GAMIFICATION MODELS ======
+
+class UserLevel(Base):
+    __tablename__ = "user_levels"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)  # FK to User
+    level = Column(Integer, default=1)
+    experience_points = Column(Integer, default=0)
+    total_points = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class Badge(Base):
+    __tablename__ = "badges"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=False)
+    icon_url = Column(String(500), nullable=True)
+    points_required = Column(Integer, default=0)
+    category = Column(String(50), nullable=False)  # forum, events, community, education
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class UserBadge(Base):
+    __tablename__ = "user_badges"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)  # FK to User
+    badge_id = Column(Integer, nullable=False)  # FK to Badge
+    earned_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_displayed = Column(Boolean, default=True)
+
+class UserPoints(Base):
+    __tablename__ = "user_points"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)  # FK to User
+    points = Column(Integer, nullable=False)
+    source = Column(String(50), nullable=False)  # forum_post, forum_comment, event_attendance, etc.
+    source_id = Column(Integer, nullable=True)  # post_id, event_id, etc
+    description = Column(String(200), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

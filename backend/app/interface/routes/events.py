@@ -9,6 +9,7 @@ from app.application.dto import (
     EventCreate, EventUpdate, EventResponse,
     EventRegistrationCreate, EventRegistrationResponse
 )
+from app.application.services.gamification_service import GamificationService
 
 event_router = APIRouter(prefix="/events", tags=["Events"])
 
@@ -280,6 +281,15 @@ def register_for_event(
     db.add(db_registration)
     db.commit()
     db.refresh(db_registration)
+    
+    gamification_service = GamificationService(db)
+    gamification_service.add_points(
+        user_id=user_id,
+        source="event_registration",
+        source_id=event_id,
+        description=f"Inscreveu-se no evento: {event.title}"
+    )
+    
     return db_registration
 
 @event_router.get(

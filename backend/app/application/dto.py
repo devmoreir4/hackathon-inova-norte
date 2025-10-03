@@ -209,3 +209,72 @@ class CommunityMembershipResponse(CommunityMembershipBase):
     role: MembershipRole
     joined_at: datetime
     active: bool
+
+# ====== GAMIFICATION DTOs ======
+
+class UserLevelBase(BaseModel):
+    level: int
+    experience_points: int
+    total_points: int
+
+class UserLevelResponse(UserLevelBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    user_id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+class BadgeBase(BaseModel):
+    name: str
+    description: str
+    icon_url: Optional[str] = None
+    points_required: int
+    category: str
+
+class BadgeResponse(BadgeBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    created_at: datetime
+
+class UserBadgeBase(BaseModel):
+    is_displayed: bool = True
+
+class UserBadgeResponse(UserBadgeBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    user_id: int
+    badge_id: int
+    earned_at: datetime
+
+class UserPointsBase(BaseModel):
+    points: int
+    source: str
+    source_id: Optional[int] = None
+    description: Optional[str] = None
+
+class UserPointsResponse(UserPointsBase):
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    user_id: int
+    created_at: datetime
+
+class UserStatsResponse(BaseModel):
+    user_id: int
+    level: int
+    experience_points: int
+    total_points: int
+    badges_count: int
+    recent_badges: List[BadgeResponse]
+    recent_points: List[UserPointsResponse]
+
+class LeaderboardEntry(BaseModel):
+    user_id: int
+    user_name: str
+    level: int
+    total_points: int
+    badges_count: int
+    rank: int
