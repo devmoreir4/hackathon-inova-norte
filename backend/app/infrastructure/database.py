@@ -2,15 +2,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.domain.models import Base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./data/sicoob_dev.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data/db/sicoob_dev.db"
 
-# Create engine
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, 
     connect_args={"check_same_thread": False}
 )
 
-# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def create_tables():
