@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:frontend/app/core/widgets/app_drawer.dart';
 import 'package:frontend/app/data/models/transaction.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,14 +13,17 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Image.asset('assets/logo.png', height: 30),
+        title: Image.asset('assets/logo.png', height: 80),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {},
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
+            ),
           ),
         ],
       ),
+      endDrawer: const AppDrawer(), // Use endDrawer to open from the right
       body: Column(
         children: [
           _BalanceCard(),
@@ -46,7 +50,7 @@ class HomeScreen extends StatelessWidget {
         currentIndex: 0,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_filled), // Changed to filled icon
             label: 'Home',
           ),
           BottomNavigationBarItem(
