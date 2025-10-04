@@ -8,8 +8,9 @@ import 'package:frontend/app/data/services/user_service.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final Post post;
+  final bool openKeyboard;
 
-  const PostDetailsScreen({super.key, required this.post});
+  const PostDetailsScreen({super.key, required this.post, this.openKeyboard = false});
 
   @override
   State<PostDetailsScreen> createState() => _PostDetailsScreenState();
@@ -21,12 +22,17 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   final _commentController = TextEditingController();
   final ForumService _forumService = ForumService();
   final UserService _userService = UserService();
+  late FocusNode _commentFocusNode;
 
   @override
   void initState() {
     super.initState();
     _author = _userService.getUser(widget.post.authorId);
     _comments = _forumService.getComments(widget.post.id);
+    _commentFocusNode = FocusNode();
+    if (widget.openKeyboard) {
+      _commentFocusNode.requestFocus(); // Request focus to open keyboard
+    }
   }
 
   Future<void> _submitComment() async {
@@ -54,6 +60,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   @override
   void dispose() {
     _commentController.dispose();
+    _commentFocusNode.dispose(); // Dispose the FocusNode
     super.dispose();
   }
 
@@ -166,6 +173,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   Expanded(
                     child: TextField(
                       controller: _commentController,
+                      focusNode: _commentFocusNode,
                       style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
                         hintText: 'Faça um comentário...',

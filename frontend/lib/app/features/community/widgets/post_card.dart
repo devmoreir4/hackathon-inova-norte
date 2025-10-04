@@ -79,7 +79,7 @@ class _PostCardState extends State<PostCard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PostDetailsScreen(post: widget.post),
+                    builder: (context) => PostDetailsScreen(post: widget.post, openKeyboard: false),
                   ),
                 );
               },
@@ -100,7 +100,7 @@ class _PostCardState extends State<PostCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PostDetailsScreen(post: widget.post),
+                        builder: (context) => PostDetailsScreen(post: widget.post, openKeyboard: true),
                       ),
                     );
                   },
