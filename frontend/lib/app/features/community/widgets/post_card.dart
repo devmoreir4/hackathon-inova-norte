@@ -3,6 +3,7 @@ import 'package:frontend/app/data/models/post.dart';
 import 'package:frontend/app/data/models/user.dart';
 import 'package:frontend/app/data/services/user_service.dart';
 import 'package:frontend/app/features/community/screens/post_details_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -108,7 +109,9 @@ class _PostCardState extends State<PostCard> {
                     );
                   },
                 ),
-                IconButton(icon: const Icon(Icons.send_outlined), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.send_outlined), onPressed: () {
+                  Share.share('${widget.post.title}\n${widget.post.content}');
+                }),
               ],
             ),
           ],
