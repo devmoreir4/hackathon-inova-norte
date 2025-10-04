@@ -38,7 +38,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _ProfileCard(
                 icon: Icons.person,
-                title: 'Leonardo Marino',
+                title: 'Ana Silva Santos',
                 account: '16.598-3',
                 branch: '3007',
                 onTap: () {
