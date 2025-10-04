@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/data/models/post.dart';
 import 'package:frontend/app/data/services/forum_service.dart';
+import 'package:frontend/app/features/community/screens/create_post_screen.dart';
 import 'package:frontend/app/features/community/widgets/post_card.dart';
 
 class ForumTab extends StatefulWidget {
@@ -55,6 +56,37 @@ class _ForumTabState extends State<ForumTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GestureDetector(
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+              );
+              if (result == true) {
+                _refreshPosts();
+              }
+            },
+            child: AbsorbPointer(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Crie algo...',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const Text(
+          '💡 Seja ativo e ganhe pontos Coopera!',
+          style: TextStyle(color: Colors.white),
+        ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
