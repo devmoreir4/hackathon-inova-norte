@@ -12,16 +12,42 @@ class ForumTab extends StatefulWidget {
 
 class _ForumTabState extends State<ForumTab> {
   late Future<List<Post>> _posts;
+  List<Post> _filteredPosts = [];
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _posts = ForumService().getPosts();
+    _searchController.addListener(() {
+      _filterPosts();
+      setState(() {}); // Rebuild to show/hide clear button
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterPosts() {
+    final query = _searchController.text.toLowerCase();
+    _posts.then((posts) {
+      setState(() {
+        _filteredPosts = posts
+            .where((post) =>
+                post.title.toLowerCase().contains(query) ||
+                post.content.toLowerCase().contains(query))
+            .toList();
+      });
+    });
   }
 
   Future<void> _refreshPosts() async {
     setState(() {
       _posts = ForumService().getPosts();
+      _searchController.clear();
     });
   }
 
@@ -32,20 +58,27 @@ class _ForumTabState extends State<ForumTab> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
+            controller: _searchController,
+            style: const TextStyle(color: Colors.black),
             decoration: InputDecoration(
-              hintText: 'Crie algo...',
+              hintText: 'Pesquisar no fórum...',
               filled: true,
               fillColor: Colors.white,
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.black),
+                      onPressed: () {
+                        _searchController.clear();
+                      },
+                    )
+                  : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30.0),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
-        ),
-        const Text(
-          '💡 Seja ativo e ganhe pontos Coopera!',
-          style: TextStyle(color: Colors.white),
         ),
         Expanded(
           child: RefreshIndicator(
@@ -60,10 +93,13 @@ class _ForumTabState extends State<ForumTab> {
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No posts found.'));
                 } else {
+                  final posts = _searchController.text.isEmpty
+                      ? snapshot.data!
+                      : _filteredPosts;
                   return ListView.builder(
-                    itemCount: snapshot.data!.length,
+                    itemCount: posts.length,
                     itemBuilder: (context, index) {
-                      return PostCard(post: snapshot.data![index]);
+                      return PostCard(post: posts[index]);
                     },
                   );
                 }
