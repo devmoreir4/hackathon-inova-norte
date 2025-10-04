@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app/data/models/post.dart';
 import 'package:frontend/app/data/models/user.dart';
 import 'package:frontend/app/data/services/user_service.dart';
+import 'package:frontend/app/data/models/comment.dart';
+import 'package:frontend/app/data/services/forum_service.dart';
 import 'package:frontend/app/features/community/screens/post_details_screen.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -16,11 +18,27 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   late Future<User> _author;
+  late Post _currentPost;
+  final ForumService _forumService = ForumService();
 
   @override
   void initState() {
     super.initState();
     _author = UserService().getUser(widget.post.authorId);
+    _currentPost = widget.post;
+  }
+
+  Future<void> _likePost() async {
+    try {
+      final updatedPost = await _forumService.likePost(_currentPost.id);
+      setState(() {
+        _currentPost = updatedPost;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to like post: $e')),
+      );
+    }
   }
 
   @override
@@ -67,13 +85,13 @@ class _PostCardState extends State<PostCard> {
             ),
             const SizedBox(height: 12),
             Text(
-              widget.post.title,
+              _currentPost.title,
               style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              widget.post.content,
-              maxLines: 3,
+              _currentPost.content,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 15),
             ),
@@ -83,7 +101,7 @@ class _PostCardState extends State<PostCard> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => PostDetailsScreen(post: widget.post, openKeyboard: false),
+                    builder: (context) => PostDetailsScreen(post: _currentPost, openKeyboard: false),
                   ),
                 );
               },
@@ -93,30 +111,78 @@ class _PostCardState extends State<PostCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.favorite_border),
-                  onPressed: null, // Disabled because no API endpoint for likes
-                  tooltip: 'Funcionalidade de like não disponível',
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.favorite_border),
+                      onPressed: _likePost,
+                      tooltip: 'Curtir post',
+                    ),
+                    Text('${_currentPost.likes_count}'),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.comment_outlined),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PostDetailsScreen(post: widget.post, openKeyboard: true),
-                      ),
-                    );
-                  },
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.comment_outlined),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PostDetailsScreen(post: _currentPost, openKeyboard: true),
+                          ),
+                        );
+                      },
+                    ),
+                    _CommentCountWidget(postId: _currentPost.id),
+                  ],
                 ),
                 IconButton(icon: const Icon(Icons.send_outlined), onPressed: () {
-                  Share.share('${widget.post.title}\n${widget.post.content}');
+                  Share.share('${_currentPost.title}\n${_currentPost.content}');
                 }),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CommentCountWidget extends StatefulWidget {
+  final int postId;
+
+  const _CommentCountWidget({required this.postId});
+
+  @override
+  State<_CommentCountWidget> createState() => _CommentCountWidgetState();
+}
+
+class _CommentCountWidgetState extends State<_CommentCountWidget> {
+  late Future<List<Comment>> _comments;
+  final ForumService _forumService = ForumService();
+
+  @override
+  void initState() {
+    super.initState();
+    _comments = _forumService.getComments(widget.postId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Comment>>(
+      future: _comments,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('...');
+        } else if (snapshot.hasError) {
+          return const Text('Erro');
+        } else if (snapshot.hasData) {
+          return Text('${snapshot.data!.length}');
+        } else {
+          return const Text('0');
+        }
+      },
     );
   }
 }

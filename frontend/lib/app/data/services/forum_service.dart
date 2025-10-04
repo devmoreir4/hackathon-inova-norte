@@ -59,4 +59,17 @@ class ForumService {
       throw Exception('Failed to create comment');
     }
   }
+
+  Future<Post> likePost(int postId) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/forum/posts/$postId/like'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return Post.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to like post');
+    }
+  }
 }
