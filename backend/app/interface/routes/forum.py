@@ -86,6 +86,26 @@ def update_post(post_id: int, post_update: PostUpdate, db: Session = Depends(get
     db.refresh(post)
     return post
 
+@router.post(
+    "/posts/{post_id}/like",
+    response_model=PostResponse,
+    summary="Like a post",
+    description="Increments the like count of a specific post"
+)
+def like_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Post not found"
+        )
+    
+    post.likes_count += 1
+    db.commit()
+    db.refresh(post)
+    
+    return post
+
 @router.delete(
     "/posts/{post_id}",
     summary="Delete post",
