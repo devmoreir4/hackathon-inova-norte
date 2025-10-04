@@ -132,7 +132,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   backgroundColor: const Color(0xFF003C44),
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
-                child: const Text('Postar', style: TextStyle(color: Colors.white)),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.send, color: Colors.white),
+                    SizedBox(width: 8.0),
+                    Text('Postar', style: TextStyle(color: Colors.white)),
+                  ],
+                ),
               ),
             ],
           ),

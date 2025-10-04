@@ -58,59 +58,58 @@ class _ForumTabState extends State<ForumTab> {
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: GestureDetector(
-            onTap: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CreatePostScreen()),
-              );
-              if (result == true) {
-                _refreshPosts();
-              }
-            },
-            child: AbsorbPointer(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Crie algo...',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    borderSide: BorderSide.none,
+          child: Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: _searchController,
+                  style: const TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar no fórum...',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.white,
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.black),
+                            onPressed: () {
+                              _searchController.clear();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-        const Text(
-          '💡 Seja ativo e ganhe pontos Coopera!',
-          style: TextStyle(color: Colors.white),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            controller: _searchController,
-            style: const TextStyle(color: Colors.black),
-            decoration: InputDecoration(
-              hintText: 'Pesquisar no fórum...',
-              hintStyle: const TextStyle(color: Colors.grey),
-              filled: true,
-              fillColor: Colors.white,
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear, color: Colors.black),
-                      onPressed: () {
-                        _searchController.clear();
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: BorderSide.none,
+              const SizedBox(width: 16.0),
+              Expanded(
+                flex: 1,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+                    );
+                    if (result == true) {
+                      _refreshPosts();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF003C44),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Novo Post', style: TextStyle(color: Colors.white)),
+                ),
               ),
-            ),
+            ],
           ),
         ),
         Expanded(
