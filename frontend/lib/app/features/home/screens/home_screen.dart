@@ -70,20 +70,20 @@ class HomeScreen extends StatelessWidget {
 class _BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
+    return const Padding(
+      padding: EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Saldo disponível',
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'R\$ 2.546,30',
                 style: TextStyle(
                   color: Colors.white,
@@ -103,8 +103,8 @@ class _BalanceCard extends StatelessWidget {
 class _ActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -114,7 +114,7 @@ class _ProfileCard extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            const Icon(Icons.chevron_right, color: const Color(0xFF93C83E), size: 32),
+            const Icon(Icons.chevron_right, color: Color(0xFF93C83E), size: 32),
           ],
         ),
       ),

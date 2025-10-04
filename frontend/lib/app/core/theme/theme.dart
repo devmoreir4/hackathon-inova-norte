@@ -16,10 +16,10 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: primaryDark,
         secondary: accentGreen,
-        background: backgroundDark,
+        surface: backgroundDark,
         onPrimary: textWhite,
         onSecondary: textWhite,
-        onBackground: textWhite,
+        onSurface: textWhite,
       ),
       textTheme: GoogleFonts.poppinsTextTheme(
         const TextTheme(
