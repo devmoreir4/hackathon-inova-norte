@@ -2,7 +2,7 @@ from .health import health_router
 from .users import user_router
 from .communities import community_router
 from .events import event_router
-from .forum import forum_router
+from . import forum
 from .gamification import gamification_router
 
 __all__ = [
@@ -10,6 +10,6 @@ __all__ = [
     "user_router", 
     "community_router",
     "event_router",
-    "forum_router",
+    "forum",
     "gamification_router"
 ]

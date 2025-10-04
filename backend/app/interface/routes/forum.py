@@ -1,45 +1,16 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.infrastructure.database import get_db
-from app.application.dto import PostCreate, PostUpdate, PostResponse, CommentCreate, CommentUpdate, CommentResponse
-from app.domain.models import Post, Comment, PostStatus
-from app.application.services.gamification_service import GamificationService
+from typing import List
 from datetime import datetime
 
-forum_router = APIRouter(
-    prefix="/forum",
-    tags=["Forum"],
-    responses={
-        404: {"description": "Post not found"},
-        400: {"description": "Invalid data"},
-    }
-)
+from app.application.dto import PostCreate, PostResponse, PostUpdate, CommentCreate, CommentResponse, CommentUpdate
+from app.domain.models import Post, Comment, PostStatus
+from app.infrastructure.database import get_db
+from app.application.services.gamification_service import GamificationService
 
-@forum_router.post(
-    "/posts", 
-    response_model=PostResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Create new post",
-    description="Create a new forum post"
-)
-def create_post(post: PostCreate, db: Session = Depends(get_db)):
-    db_post = Post(**post.model_dump())
-    db.add(db_post)
-    db.commit()
-    db.refresh(db_post)
-    
-    gamification_service = GamificationService(db)
-    gamification_service.add_points(
-        user_id=post.author_id,
-        source="forum_post",
-        source_id=db_post.id,
-        description=f"Criou post: {db_post.title}"
-    )
-    
-    return db_post
+router = APIRouter()
 
-@forum_router.get(
+@router.get(
     "/posts", 
     response_model=List[PostResponse],
     summary="List posts",
@@ -60,7 +31,7 @@ def list_posts(
     posts = query.offset(skip).limit(limit).all()
     return posts
 
-@forum_router.get(
+@router.get(
     "/posts/{post_id}", 
     response_model=PostResponse,
     summary="Get post by ID",
@@ -80,7 +51,15 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
     
     return post
 
-@forum_router.put(
+@router.post("/posts", response_model=PostResponse)
+def create_post(post: PostCreate, db: Session = Depends(get_db)):
+    db_post = Post(**post.dict())
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+@router.put(
     "/posts/{post_id}", 
     response_model=PostResponse,
     summary="Update post",
@@ -107,7 +86,7 @@ def update_post(post_id: int, post_update: PostUpdate, db: Session = Depends(get
     db.refresh(post)
     return post
 
-@forum_router.delete(
+@router.delete(
     "/posts/{post_id}",
     summary="Delete post",
     description="Deletes a post"
@@ -124,7 +103,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Post deleted successfully"}
 
-@forum_router.post(
+@router.post(
     "/posts/{post_id}/comments", 
     response_model=CommentResponse,
     status_code=status.HTTP_201_CREATED,
@@ -156,7 +135,7 @@ def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(g
     
     return db_comment
 
-@forum_router.get(
+@router.get(
     "/posts/{post_id}/comments", 
     response_model=List[CommentResponse],
     summary="List comments",
@@ -166,7 +145,7 @@ def list_comments(post_id: int, db: Session = Depends(get_db)):
     comments = db.query(Comment).filter(Comment.post_id == post_id).all()
     return comments
 
-@forum_router.put(
+@router.put(
     "/comments/{comment_id}", 
     response_model=CommentResponse,
     summary="Update comment",
@@ -188,7 +167,7 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, db: Session =
     db.refresh(comment)
     return comment
 
-@forum_router.delete(
+@router.delete(
     "/comments/{comment_id}",
     summary="Delete comment",
     description="Deletes a comment"
