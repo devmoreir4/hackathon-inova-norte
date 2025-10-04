@@ -70,13 +70,13 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Cartões',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.payments),
-            label: 'Pagamentos',
+            icon: Icon(Icons.pix),
+            label: 'Pix',
           ),
           BottomNavigationBarItem(
             icon: Stack(
               children: [
-                const Icon(Icons.group_work),
+                const Icon(Icons.people),
                 Positioned(
                   right: 0,
                   child: Container(
