@@ -27,6 +27,7 @@ class _PostCardState extends State<PostCard> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+      elevation: 2.0, // Subtle shadow
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -52,7 +53,7 @@ class _PostCardState extends State<PostCard> {
                       const SizedBox(width: 8),
                       Text(
                         snapshot.data!.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const Spacer(),
                       const Icon(Icons.bookmark_border),
@@ -63,17 +64,19 @@ class _PostCardState extends State<PostCard> {
                 }
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               widget.post.title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               widget.post.content,
-              maxLines: 2,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 15),
             ),
+            const SizedBox(height: 8),
             TextButton(
               onPressed: () {
                 Navigator.push(
@@ -83,7 +86,7 @@ class _PostCardState extends State<PostCard> {
                   ),
                 );
               },
-              child: const Text('Continuar lendo'),
+              child: const Text('Continuar lendo', style: TextStyle(color: Color(0xFF007A8D))),
             ),
             const Divider(),
             Row(
