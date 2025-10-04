@@ -5,7 +5,7 @@ import 'package:frontend/app/data/models/community.dart';
 
 class CommunityService {
   // TODO: Replace with your actual backend URL
-  final String _baseUrl = 'http://192.168.1:5000/api/v1'; //ADD your address ip 
+  final String _baseUrl = 'http://10.0.0.107:5000/api/v1'; //ADD your address ip
 
   Future<List<Community>> getCommunities() async {
     final response = await http.get(Uri.parse('$_baseUrl/communities'));

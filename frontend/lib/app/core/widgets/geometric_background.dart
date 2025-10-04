@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-import 'dart:ui';
 
 class GeometricBackground extends StatelessWidget {
   const GeometricBackground({super.key});

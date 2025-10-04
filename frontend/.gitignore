@@ -49,3 +49,4 @@
 *.jks
 *.keystore
 dbugImgs
+.metadata
