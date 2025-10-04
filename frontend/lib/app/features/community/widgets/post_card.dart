@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/app/data/models/post.dart';
 import 'package:frontend/app/data/models/user.dart';
 import 'package:frontend/app/data/services/user_service.dart';
+import 'package:frontend/app/features/community/screens/post_details_screen.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -74,15 +75,36 @@ class _PostCardState extends State<PostCard> {
               overflow: TextOverflow.ellipsis,
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostDetailsScreen(post: widget.post),
+                  ),
+                );
+              },
               child: const Text('Continuar lendo'),
             ),
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.comment_outlined), onPressed: () {}),
+                IconButton(
+                  icon: const Icon(Icons.favorite_border),
+                  onPressed: null, // Disabled because no API endpoint for likes
+                  tooltip: 'Funcionalidade de like não disponível',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment_outlined),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PostDetailsScreen(post: widget.post),
+                      ),
+                    );
+                  },
+                ),
                 IconButton(icon: const Icon(Icons.send_outlined), onPressed: () {}),
               ],
             ),
