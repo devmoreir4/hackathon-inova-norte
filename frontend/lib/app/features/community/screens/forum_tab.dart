@@ -91,10 +91,10 @@ class _ForumTabState extends State<ForumTab> {
                 flex: 1,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const CreatePostScreen()),
-                    );
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+                  );
                     if (result == true) {
                       _refreshPosts();
                     }

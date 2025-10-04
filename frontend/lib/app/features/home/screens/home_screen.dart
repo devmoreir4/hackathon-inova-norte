@@ -37,6 +37,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = <Widget>[
+      const HomeTab(),
+      const Center(child: Text('Extrato Screen')),
+      const Center(child: Text('Cartões Screen')),
+      const Center(child: Text('Pix Screen')),
+      TabBarView(
+        controller: _tabController,
+        children: const [
+          ForumTab(),
+          AulasTab(),
+          CalendarioTab(),
+        ],
+      ),
+      const Center(child: Text('Menu Screen')),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF003C44),
@@ -63,7 +79,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                ),
                 (route) => false,
               );
             },
@@ -73,40 +97,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
         ],
-          bottom: _selectedIndex == 4
-              ? TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: Colors.white,
-                  tabs: const [
-                    Tab(text: 'Fórum'),
-                    Tab(text: 'Aulas'),
-                    Tab(text: 'Calendário'),
-                  ],
-                )
-              : null,
+        bottom: _selectedIndex == 4
+            ? TabBar(
+                controller: _tabController,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Colors.white,
+                tabs: const [
+                  Tab(text: 'Fórum'),
+                  Tab(text: 'Aulas'),
+                  Tab(text: 'Calendário'),
+                ],
+              )
+            : null,
       ),
-      body: GeometricBackground(
-        child: IndexedStack(
-          index: _selectedIndex,
-          children: <Widget>[
-            const HomeTab(),
-            const Center(child: Text('Extrato Screen')),
-            const Center(child: Text('Cartões Screen')),
-            const Center(child: Text('Pix Screen')),
-            TabBarView(
-              controller: _tabController,
-              children: const [
-                ForumTab(),
-                AulasTab(),
-                CalendarioTab(),
-              ],
-            ),
-            const Center(child: Text('Menu Screen')),
-          ],
+        body: GeometricBackground(
+          child: IndexedStack(
+            index: _selectedIndex,
+            children: _screens,
+          ),
         ),
-      ),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
