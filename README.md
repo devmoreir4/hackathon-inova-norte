@@ -38,6 +38,29 @@ uvicorn app.interface:app --reload --host 0.0.0.0 --port 5000
 - **Documentação ReDoc**: http://localhost:5000/redoc
 - **Health Check**: http://localhost:5000/health
 
+## Como Executar Frontend
+
+### 1. Pré-requisitos
+
+- Ter o [Flutter](https://flutter.dev/docs/get-started/install) instalado e configurado no seu ambiente.
+
+### 2. Instalar Dependências
+
+```bash
+# Navegar para a pasta do frontend
+cd frontend
+
+# Instalar as dependências
+flutter pub get
+```
+
+### 3. Executar a Aplicação
+
+```bash
+# Executar o aplicativo
+flutter run
+```
+
 ## Testes
 
 ```bash
