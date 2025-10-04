@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/core/widgets/geometric_background.dart';
 import 'package:frontend/app/features/community/screens/forum_tab.dart';
+import 'package:frontend/app/features/home/screens/home_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,7 +11,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 3;
+  int _selectedIndex = 0;
+
+  static const List<Widget> _screens = <Widget>[
+    HomeTab(),
+    Center(child: Text('Extrato Screen')),
+    Center(child: Text('Cartões Screen')),
+    Center(child: Text('Pix Screen')),
+    ForumTab(),
+    Center(child: Text('Menu Screen')),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -52,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-          bottom: _selectedIndex == 3
+          bottom: _selectedIndex == 4
               ? const TabBar(
                   tabs: [
                     Tab(text: 'Fórum'),
@@ -65,19 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
         body: GeometricBackground(
           child: IndexedStack(
             index: _selectedIndex,
-            children: const <Widget>[
-              Center(child: Text('Extrato Screen')),
-              Center(child: Text('Cartões Screen')),
-              Center(child: Text('Pix Screen')),
-              TabBarView(
-                children: [
-                  ForumTab(),
-                  Center(child: Text('Aulas')),
-                  Center(child: Text('Calendário')),
-                ],
-              ),
-              Center(child: Text('Menu Screen')),
-            ],
+            children: _screens,
           ),
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -88,6 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedItemColor: const Color(0xFF007A8D),
           unselectedItemColor: Colors.grey,
           items: [
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.receipt_long),
               label: 'Extrato',
