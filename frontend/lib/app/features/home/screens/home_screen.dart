@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/core/widgets/geometric_background.dart';
+import 'package:frontend/app/features/auth/screens/login_screen.dart';
 import 'package:frontend/app/features/community/screens/aulas_tab.dart';
 import 'package:frontend/app/features/community/screens/calendario_tab.dart';
 import 'package:frontend/app/features/community/screens/forum_tab.dart';
@@ -59,7 +60,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            },
             icon: const Icon(
               Icons.logout,
               color: Colors.white,
