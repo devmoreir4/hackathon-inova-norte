@@ -66,16 +66,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ),
           ),
         ],
-        bottom: _selectedIndex == 4
-            ? TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Fórum'),
-                  Tab(text: 'Aulas'),
-                  Tab(text: 'Calendário'),
-                ],
-              )
-            : null,
+          bottom: _selectedIndex == 4
+              ? TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Colors.white,
+                  tabs: const [
+                    Tab(text: 'Fórum'),
+                    Tab(text: 'Aulas'),
+                    Tab(text: 'Calendário'),
+                  ],
+                )
+              : null,
       ),
       body: GeometricBackground(
         child: IndexedStack(
