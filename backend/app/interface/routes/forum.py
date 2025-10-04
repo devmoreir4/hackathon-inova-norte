@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.infrastructure.database import get_db
 from app.application.dto import PostCreate, PostUpdate, PostResponse, CommentCreate, CommentUpdate, CommentResponse
 from app.domain.models import Post, Comment, PostStatus
+from app.application.services.gamification_service import GamificationService
 from datetime import datetime
 
 forum_router = APIRouter(
@@ -27,6 +28,15 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
+    
+    gamification_service = GamificationService(db)
+    gamification_service.add_points(
+        user_id=post.author_id,
+        source="forum_post",
+        source_id=db_post.id,
+        description=f"Criou post: {db_post.title}"
+    )
+    
     return db_post
 
 @forum_router.get(
@@ -135,6 +145,15 @@ def create_comment(post_id: int, comment: CommentCreate, db: Session = Depends(g
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
+    
+    gamification_service = GamificationService(db)
+    gamification_service.add_points(
+        user_id=comment.author_id,
+        source="forum_comment",
+        source_id=db_comment.id,
+        description=f"Comentou no post ID: {post_id}"
+    )
+    
     return db_comment
 
 @forum_router.get(
