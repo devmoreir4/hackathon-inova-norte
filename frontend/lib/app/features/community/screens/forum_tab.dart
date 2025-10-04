@@ -19,6 +19,12 @@ class _ForumTabState extends State<ForumTab> {
     _posts = ForumService().getPosts();
   }
 
+  Future<void> _refreshPosts() async {
+    setState(() {
+      _posts = ForumService().getPosts();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -42,24 +48,27 @@ class _ForumTabState extends State<ForumTab> {
           style: TextStyle(color: Colors.white),
         ),
         Expanded(
-          child: FutureBuilder<List<Post>>(
-            future: _posts,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No posts found.'));
-              } else {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return PostCard(post: snapshot.data![index]);
-                  },
-                );
-              }
-            },
+          child: RefreshIndicator(
+            onRefresh: _refreshPosts,
+            child: FutureBuilder<List<Post>>(
+              future: _posts,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No posts found.'));
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      return PostCard(post: snapshot.data![index]);
+                    },
+                  );
+                }
+              },
+            ),
           ),
         ),
       ],
