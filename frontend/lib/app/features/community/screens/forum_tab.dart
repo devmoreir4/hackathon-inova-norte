@@ -62,6 +62,7 @@ class _ForumTabState extends State<ForumTab> {
             style: const TextStyle(color: Colors.black),
             decoration: InputDecoration(
               hintText: 'Pesquisar no fórum...',
+              hintStyle: const TextStyle(color: Colors.grey),
               filled: true,
               fillColor: Colors.white,
               prefixIcon: const Icon(Icons.search),
