@@ -1,3 +1,4 @@
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/app/data/services/rag_chat_service.dart';
 import 'package:uuid/uuid.dart';
@@ -21,8 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
     'O que é cooperativismo?',
     'Quais os benefícios de ser um cooperado Sicoob?',
     'Como posso investir no Sicoob?',
-    'Quais os tipos de conta disponíveis?',
-    'Onde encontro as agências Sicoob?',
+    'Como posso iniciar minha educação financeira?',    'Onde encontro as agências Sicoob?',
   ];
 
   @override
@@ -258,9 +258,28 @@ class _ChatMessageBubble extends StatelessWidget {
                       strokeWidth: 2,
                     ),
                   )
-                : Text(
-                    text,
-                    style: const TextStyle(color: Colors.white, fontSize: 15.0),
+                : MarkdownBody(
+                    data: text,
+                    styleSheet: MarkdownStyleSheet.fromTheme(
+                      Theme.of(context).copyWith(
+                        textTheme: Theme.of(context).textTheme.apply(
+                              bodyColor: Colors.white,
+                              displayColor: Colors.white,
+                            ),
+                      ),
+                    ).copyWith(
+                      p: const TextStyle(color: Colors.white, fontSize: 15.0),
+                      strong: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15.0),
+                      em: const TextStyle(fontStyle: FontStyle.italic, color: Colors.white, fontSize: 15.0),
+                      listBullet: const TextStyle(color: Colors.white, fontSize: 15.0),
+                      h1: const TextStyle(color: Colors.white, fontSize: 24.0, fontWeight: FontWeight.bold),
+                      h2: const TextStyle(color: Colors.white, fontSize: 22.0, fontWeight: FontWeight.bold),
+                      h3: const TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),
+                      h4: const TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.bold),
+                      h5: const TextStyle(color: Colors.white, fontSize: 16.0, fontWeight: FontWeight.bold),
+                      h6: const TextStyle(color: Colors.white, fontSize: 15.0, fontWeight: FontWeight.bold),
+                    ),
+                    selectable: true,
                   ),
             if (!isTyping && sources != null && sources!.isNotEmpty)
               Padding(
