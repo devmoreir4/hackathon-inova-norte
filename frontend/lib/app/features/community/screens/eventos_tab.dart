@@ -4,6 +4,7 @@ import 'package:frontend/app/features/events/models/event.dart';
 import 'package:frontend/app/features/events/services/event_service.dart';
 import 'package:frontend/app/features/events/widgets/event_card.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class EventosTab extends StatefulWidget {
@@ -21,7 +22,7 @@ class _EventosTabState extends State<EventosTab> {
   late ValueNotifier<List<Event>> _displayedEvents;
   LinkedHashMap<DateTime, List<Event>> _allEventsByDay = LinkedHashMap();
   List<String> _eventTypes = [];
-  String? _selectedEventType;
+  String? _selectedFilter;
   Map<int, int> _myRegistrations = {}; // Map<eventId, registrationId>
 
   // Calendar state
@@ -45,14 +46,13 @@ class _EventosTabState extends State<EventosTab> {
   Future<void> _fetchAndSetInitialEvents() async {
     try {
       const userId = 1; // Placeholder for logged-in user
-      // Fetch events and user registrations in parallel
       final results = await Future.wait([
         _eventService.getAllEvents(),
         _eventService.getRegistrationsForUser(userId),
       ]);
 
       final allEvents = results[0] as List<Event>;
-      final registrations = results[1] as List<dynamic>; // EventRegistration model is not created yet
+      final registrations = results[1] as List<dynamic>;
 
       if (!mounted) return;
 
@@ -62,10 +62,9 @@ class _EventosTabState extends State<EventosTab> {
       _myRegistrations = {for (var reg in registrations) reg.eventId: reg.id};
       
       setState(() {
-        _eventTypes = ['Todos', ...types];
-        _selectedEventType = 'Todos';
-        _displayedEvents.value = _allUpcomingEvents;
-        _selectedDay = null;
+        _eventTypes = ['Todos', 'Inscrito', ...types]; // Add 'Inscrito' filter
+        _selectedFilter = 'Todos';
+        _applyFilters();
       });
 
     } catch (e) {
@@ -73,9 +72,9 @@ class _EventosTabState extends State<EventosTab> {
     }
   }
 
-  void _filterEventsByEventType(String eventType) {
+  void _selectFilter(String filter) {
     setState(() {
-      _selectedEventType = eventType;
+      _selectedFilter = filter;
       _applyFilters();
     });
   }
@@ -95,10 +94,16 @@ class _EventosTabState extends State<EventosTab> {
   void _applyFilters() {
     List<Event> events = _allUpcomingEvents;
 
-    if (_selectedEventType != null && _selectedEventType != 'Todos') {
-      events = events.where((e) => e.eventType == _selectedEventType).toList();
+    // Filter by selected chip
+    if (_selectedFilter != null) {
+      if (_selectedFilter == 'Inscrito') {
+        events = events.where((e) => _myRegistrations.containsKey(e.id)).toList();
+      } else if (_selectedFilter != 'Todos') {
+        events = events.where((e) => e.eventType == _selectedFilter).toList();
+      }
     }
 
+    // Then, filter by selected day (if any)
     if (_selectedDay != null) {
       final dayEvents = _getEventsForDay(_selectedDay!);
       events = events.where((e) => dayEvents.contains(e)).toList();
@@ -121,13 +126,14 @@ class _EventosTabState extends State<EventosTab> {
     return _allEventsByDay[utcDay] ?? [];
   }
 
-  String _formatEventType(String eventType) {
-    switch (eventType) {
+  String _formatFilterName(String filter) {
+    switch (filter) {
       case 'cooperative_fair': return 'Feira';
       case 'lecture': return 'Palestra';
       case 'business_round': return 'Negócios';
       case 'educational_activity': return 'Educativo';
       case 'Todos': return 'Todos';
+      case 'Inscrito': return 'Inscrito';
       default: return 'Outro';
     }
   }
@@ -145,7 +151,7 @@ class _EventosTabState extends State<EventosTab> {
             child: ExpansionTile(
               title: Text(
                 'Exibir Calendário de Eventos',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFF003C44)),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFFFFFFFF)),
               ),
               leading: const Icon(Icons.calendar_today, color: Color(0xFF003C44)),
               iconColor: const Color(0xFF003C44),
@@ -218,7 +224,7 @@ class _EventosTabState extends State<EventosTab> {
                     return EventCard(
                       event: event,
                       isRegistered: isRegistered,
-                      onStatusChanged: _fetchAndSetInitialEvents, // Pass the refresh function
+                      onStatusChanged: _fetchAndSetInitialEvents,
                     );
                   },
                 ),
@@ -240,13 +246,13 @@ class _EventosTabState extends State<EventosTab> {
         itemCount: _eventTypes.length,
         itemBuilder: (context, index) {
           final type = _eventTypes[index];
-          final isSelected = type == _selectedEventType;
+          final isSelected = type == _selectedFilter;
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: FilterChip(
-              label: Text(_formatEventType(type)),
+              label: Text(_formatFilterName(type)),
               selected: isSelected,
-              onSelected: (selected) => _filterEventsByEventType(type),
+              onSelected: (selected) => _selectFilter(type),
               backgroundColor: Colors.white.withOpacity(0.1),
               selectedColor: Colors.white,
               labelStyle: TextStyle(
@@ -254,9 +260,7 @@ class _EventosTabState extends State<EventosTab> {
                 fontWeight: FontWeight.bold,
               ),
               checkmarkColor: const Color(0xFF003C44),
-              shape: StadiumBorder(
-                side: BorderSide(color: Colors.white.withOpacity(0.3)),
-              ),
+              shape: const StadiumBorder(),
             ),
           );
         },
