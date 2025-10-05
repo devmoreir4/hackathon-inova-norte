@@ -123,7 +123,7 @@ class _ForumTabState extends State<ForumTab> {
               const SizedBox(width: 16.0),
               Expanded(
                 flex: 1,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
                   onPressed: () async {
                     final result = await Navigator.push(
                       context,
@@ -135,10 +135,12 @@ class _ForumTabState extends State<ForumTab> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF003C44),
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Novo Post', style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
