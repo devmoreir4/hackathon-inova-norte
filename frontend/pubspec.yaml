@@ -41,6 +41,7 @@ dependencies:
   http: ^1.2.1
   share_plus: ^7.0.2
   shared_preferences: ^2.2.2
+  url_launcher: ^6.3.0
 
 flutter_native_splash:
   image: "assets/logo.png"

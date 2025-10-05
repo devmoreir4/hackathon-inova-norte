@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/features/courses/models/course.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;
 
   const CourseCard({Key? key, required this.course}) : super(key: key);
 
+  String _getKeywordForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'financial_education':
+        return 'finance';
+      case 'cooperativism':
+        return 'community';
+      case 'business':
+        return 'business';
+      default:
+        return 'technology';
+    }
+  }
+
+  Future<void> _launchURL(BuildContext context) async {
+    final Uri url = Uri.parse('https://www.sicoob.com.br');
+    if (!await launchUrl(url)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possível abrir o link: $url')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String? imageUrl = course.imageUrl;
-    // Temporary fix: If the image URL is a placeholder from example.com, replace it.
-    if (imageUrl != null && imageUrl.contains('example.com')) {
-      // Use a placeholder service like picsum.photos with the course ID for a unique image
+    // If the image URL is a placeholder from example.com, replace it with a contextual one.
+    if (imageUrl == null || imageUrl.contains('example.com')) {
+      // Use picsum.photos as a reliable placeholder. The course ID is used as a seed for a unique image.
       imageUrl = 'https://picsum.photos/seed/${course.id}/400/200';
     }
 
@@ -32,32 +55,26 @@ class CourseCard extends StatelessWidget {
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),
-            child: imageUrl != null
-                ? Image.network(
-                    imageUrl,
-                    height: 160,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      return progress == null
-                          ? child
-                          : const SizedBox(
-                              height: 160,
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
+            child: Image.network(
+              imageUrl,
+              height: 160,
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, progress) {
+                return progress == null
+                    ? child
+                    : const SizedBox(
                         height: 160,
-                        color: Colors.grey[200],
-                        child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
+                        child: Center(child: CircularProgressIndicator()),
                       );
-                    },
-                  )
-                : Container(
-                    height: 160,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
-                  ),
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 160,
+                  color: Colors.grey[200],
+                  child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
+                );
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -88,9 +105,7 @@ class CourseCard extends StatelessWidget {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement navigation to course details screen
-                    },
+                    onPressed: () => _launchURL(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF98CE00), // Sicoob green
                       shape: RoundedRectangleBorder(
