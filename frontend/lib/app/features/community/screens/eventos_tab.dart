@@ -15,10 +15,15 @@ class EventosTab extends StatefulWidget {
 
 class _EventosTabState extends State<EventosTab> {
   final EventService _eventService = EventService();
-  late final ValueNotifier<List<Event>> _displayedEvents;
-  LinkedHashMap<DateTime, List<Event>> _allEventsByDay = LinkedHashMap();
+  
+  // State variables
   List<Event> _allUpcomingEvents = [];
+  late ValueNotifier<List<Event>> _displayedEvents;
+  LinkedHashMap<DateTime, List<Event>> _allEventsByDay = LinkedHashMap();
+  List<String> _eventTypes = [];
+  String? _selectedEventType;
 
+  // Calendar state
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -43,15 +48,55 @@ class _EventosTabState extends State<EventosTab> {
 
       _allEventsByDay = _groupEventsByDay(allEvents);
       _allUpcomingEvents = allEvents.where((e) => e.startDate.isAfter(DateTime.now())).toList();
+      final types = LinkedHashSet<String>.from(_allUpcomingEvents.map((e) => e.eventType)).toList();
       
       setState(() {
+        _eventTypes = ['Todos', ...types];
+        _selectedEventType = 'Todos';
         _displayedEvents.value = _allUpcomingEvents;
-        _selectedDay = null; // Start with no day selected
+        _selectedDay = null;
       });
 
     } catch (e) {
       // handle error
     }
+  }
+
+  void _filterEventsByEventType(String eventType) {
+    setState(() {
+      _selectedEventType = eventType;
+      _applyFilters();
+    });
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    setState(() {
+      _focusedDay = focusedDay;
+      if (isSameDay(_selectedDay, selectedDay)) {
+        _selectedDay = null; // Clear day filter
+      } else {
+        _selectedDay = selectedDay;
+      }
+      _applyFilters();
+    });
+  }
+
+  void _applyFilters() {
+    List<Event> events = _allUpcomingEvents;
+
+    // Filter by Event Type
+    if (_selectedEventType != null && _selectedEventType != 'Todos') {
+      events = events.where((e) => e.eventType == _selectedEventType).toList();
+    }
+
+    // Then, filter by selected day (if any)
+    if (_selectedDay != null) {
+      final dayEvents = _getEventsForDay(_selectedDay!);
+      // Intersect with the already filtered list
+      events = events.where((e) => dayEvents.contains(e)).toList();
+    }
+
+    _displayedEvents.value = events;
   }
 
   LinkedHashMap<DateTime, List<Event>> _groupEventsByDay(List<Event> events) {
@@ -68,26 +113,24 @@ class _EventosTabState extends State<EventosTab> {
     return _allEventsByDay[utcDay] ?? [];
   }
 
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    setState(() {
-      _focusedDay = focusedDay;
-      // If the user taps the same day again, clear the filter
-      if (isSameDay(_selectedDay, selectedDay)) {
-        _selectedDay = null;
-        _displayedEvents.value = _allUpcomingEvents;
-      } else {
-        _selectedDay = selectedDay;
-        _displayedEvents.value = _getEventsForDay(selectedDay);
-      }
-    });
+  String _formatEventType(String eventType) {
+    switch (eventType) {
+      case 'cooperative_fair': return 'Feira';
+      case 'lecture': return 'Palestra';
+      case 'business_round': return 'Negócios';
+      case 'educational_activity': return 'Educativo';
+      case 'Todos': return 'Todos';
+      default: return 'Outro';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        _buildEventTypeFilters(),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
           child: Card(
             elevation: 2,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -111,7 +154,6 @@ class _EventosTabState extends State<EventosTab> {
                   startingDayOfWeek: StartingDayOfWeek.monday,
                   onDaySelected: _onDaySelected,
                   onPageChanged: (focusedDay) {
-                    // No need to fetch on page change as we have all events
                     _focusedDay = focusedDay;
                   },
                   onFormatChanged: (format) {
@@ -146,7 +188,6 @@ class _EventosTabState extends State<EventosTab> {
             ),
           ),
         ),
-        const SizedBox(height: 8.0),
         Expanded(
           child: ValueListenableBuilder<List<Event>>(
             valueListenable: _displayedEvents,
@@ -172,6 +213,40 @@ class _EventosTabState extends State<EventosTab> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildEventTypeFilters() {
+    if (_eventTypes.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: _eventTypes.length,
+        itemBuilder: (context, index) {
+          final type = _eventTypes[index];
+          final isSelected = type == _selectedEventType;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: FilterChip(
+              label: Text(_formatEventType(type)),
+              selected: isSelected,
+              onSelected: (selected) => _filterEventsByEventType(type),
+              backgroundColor: Colors.white.withOpacity(0.1),
+              selectedColor: Colors.white,
+              labelStyle: TextStyle(
+                color: isSelected ? const Color(0xFF003C44) : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              checkmarkColor: const Color(0xFF003C44),
+              shape: StadiumBorder(
+                side: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
