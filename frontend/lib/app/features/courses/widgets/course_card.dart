@@ -58,6 +58,7 @@ class CourseCard extends StatelessWidget {
                 child: Image.network(
                   imageUrl,
                   height: 160,
+                  width: double.infinity, // Force image to fill width
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, progress) {
                     return progress == null
@@ -87,7 +88,7 @@ class CourseCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
-                  backgroundColor: Colors.black.withOpacity(0.6),
+                  backgroundColor: const Color(0xFF98CE00), // Sicoob accent green for high contrast
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 ),
               ),
@@ -120,24 +121,22 @@ class CourseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () => _launchURL(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF98CE00), // Sicoob green
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      elevation: 2,
+                ElevatedButton(
+                  onPressed: () => _launchURL(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF98CE00), // Sicoob green
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    child: Text(
-                      'Quero aprender',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    elevation: 2,
+                  ),
+                  child: Text(
+                    'Quero aprender',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.white,
                     ),
                   ),
                 ),
