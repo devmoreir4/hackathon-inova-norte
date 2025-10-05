@@ -50,6 +50,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
       _commentController.clear();
       setState(() {
         _comments = _forumService.getComments(widget.post.id);
+        _commentAdded = true; // Set to true when a comment is added
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

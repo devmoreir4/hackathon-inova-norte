@@ -23,6 +23,7 @@ class _PostCardState extends State<PostCard> {
   final ForumService _forumService = ForumService();
   late SharedPreferences _prefs;
   bool _isLikedLocally = false; // Local state for heart icon
+  final GlobalKey<_CommentCountWidgetState> _commentCountWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -110,13 +111,16 @@ class _PostCardState extends State<PostCard> {
             ),
             const SizedBox(height: 8),
             TextButton(
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final commentAdded = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PostDetailsScreen(post: _currentPost, openKeyboard: false),
                   ),
                 );
+                if (commentAdded == true) {
+                  _commentCountWidgetKey.currentState?._fetchComments();
+                }
               },
               child: const Text('Continuar lendo', style: TextStyle(color: Color(0xFF007A8D))),
             ),
@@ -141,16 +145,19 @@ class _PostCardState extends State<PostCard> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.comment_outlined),
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        final commentAdded = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => PostDetailsScreen(post: _currentPost, openKeyboard: true),
                           ),
                         );
+                        if (commentAdded == true) {
+                          _commentCountWidgetKey.currentState?._fetchComments();
+                        }
                       },
                     ),
-                    _CommentCountWidget(postId: _currentPost.id),
+                    _CommentCountWidget(key: _commentCountWidgetKey, postId: _currentPost.id),
                   ],
                 ),
                 IconButton(icon: const Icon(Icons.send_outlined), onPressed: () {
@@ -167,8 +174,9 @@ class _PostCardState extends State<PostCard> {
 
 class _CommentCountWidget extends StatefulWidget {
   final int postId;
+  final VoidCallback? onRefresh; // Added callback
 
-  const _CommentCountWidget({required this.postId});
+  const _CommentCountWidget({super.key, required this.postId, this.onRefresh});
 
   @override
   State<_CommentCountWidget> createState() => _CommentCountWidgetState();
@@ -181,7 +189,23 @@ class _CommentCountWidgetState extends State<_CommentCountWidget> {
   @override
   void initState() {
     super.initState();
-    _comments = _forumService.getComments(widget.postId);
+    _fetchComments();
+  }
+
+  // Method to fetch comments
+  void _fetchComments() {
+    setState(() {
+      _comments = _forumService.getComments(widget.postId);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _CommentCountWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.onRefresh != oldWidget.onRefresh) {
+      // If the callback changes, it might indicate a refresh is needed
+      // Or, more directly, the parent can call a method on this state.
+    }
   }
 
   @override
