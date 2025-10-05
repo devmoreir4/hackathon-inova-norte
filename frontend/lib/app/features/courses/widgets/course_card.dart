@@ -88,7 +88,7 @@ class CourseCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
-                  backgroundColor: const Color(0xFF98CE00), // Sicoob accent green for high contrast
+                  backgroundColor: const Color(0xFF00838A), // Sicoob medium theme color
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 ),
               ),
@@ -124,7 +124,7 @@ class CourseCard extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => _launchURL(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF98CE00), // Sicoob green
+                    backgroundColor: const Color(0xFF00838A), // Sicoob medium theme color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -139,7 +139,7 @@ class CourseCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
