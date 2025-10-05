@@ -30,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     setState(() {
       _messages.add({'text': text, 'isUser': true});
+      _messages.add({'text': '', 'isUser': false, 'isTyping': true}); // Add typing indicator
       _isLoading = true;
     });
     _messageController.clear();
@@ -38,10 +39,12 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final response = await _chatService.sendMessage(text, _sessionId);
       setState(() {
+        _messages.removeLast(); // Remove typing indicator
         _messages.add({'text': response['response'], 'isUser': false, 'sources': response['sources']});
       });
     } catch (e) {
       setState(() {
+        _messages.removeLast(); // Remove typing indicator
         _messages.add({'text': 'Erro: ${e.toString()}', 'isUser': false});
       });
     } finally {
@@ -77,26 +80,19 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: Stack(
-                children: [
-                  ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return _ChatMessageBubble(
-                        text: message['text'],
-                        isUser: message['isUser'],
-                        sources: message['sources'],
-                      );
-                    },
-                  ),
-                  if (_isLoading)
-                    const Center(
-                      child: CircularProgressIndicator(color: Color(0xFF93C83E)),
-                    ),
-                ],
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(16.0),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final message = _messages[index];
+                  return _ChatMessageBubble(
+                    text: message['text'],
+                    isUser: message['isUser'],
+                    sources: message['sources'],
+                    isTyping: message['isTyping'] ?? false,
+                  );
+                },
               ),
             ),
             _buildMessageInput(),
@@ -158,8 +154,9 @@ class _ChatMessageBubble extends StatelessWidget {
   final String text;
   final bool isUser;
   final List<dynamic>? sources;
+  final bool isTyping;
 
-  const _ChatMessageBubble({required this.text, required this.isUser, this.sources});
+  const _ChatMessageBubble({required this.text, required this.isUser, this.sources, this.isTyping = false});
 
   @override
   Widget build(BuildContext context) {
@@ -176,11 +173,20 @@ class _ChatMessageBubble extends StatelessWidget {
         child: Column(
           crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(
-              text,
-              style: const TextStyle(color: Colors.white, fontSize: 15.0),
-            ),
-            if (sources != null && sources!.isNotEmpty)
+            isTyping
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                : Text(
+                    text,
+                    style: const TextStyle(color: Colors.white, fontSize: 15.0),
+                  ),
+            if (!isTyping && sources != null && sources!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
