@@ -34,7 +34,8 @@ class CourseCard extends StatelessWidget {
     String? imageUrl = course.imageUrl;
     // Use picsum.photos as a reliable placeholder. The course ID is used as a seed for a unique image.
     if (imageUrl == null || imageUrl.contains('example.com')) {
-      imageUrl = 'https://picsum.photos/seed/${course.id}/400/200';
+      // Use picsum.photos as a reliable placeholder. Add a number to the seed to get a new set of images.
+      imageUrl = 'https://picsum.photos/seed/${course.id + 100}/400/200';
     }
 
     return Card(
