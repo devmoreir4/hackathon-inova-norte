@@ -19,6 +19,8 @@ class GamificationService:
         'community_create': 20,
         'first_post': 25,
         'active_member': 30,
+        'course_enrollment': 10,
+        'course_completion': 50,
     }
     
     LEVEL_REQUIREMENTS = [

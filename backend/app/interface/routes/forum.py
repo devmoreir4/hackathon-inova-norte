@@ -8,7 +8,7 @@ from app.domain.models import Post, Comment, PostStatus
 from app.infrastructure.database import get_db
 from app.application.services.gamification_service import GamificationService
 
-router = APIRouter()
+router = APIRouter(tags=["Forum"])
 
 @router.get(
     "/posts", 
