@@ -53,7 +53,11 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
 
 @router.post("/posts", response_model=PostResponse)
 def create_post(post: PostCreate, db: Session = Depends(get_db)):
-    db_post = Post(**post.dict(), status=PostStatus.PUBLISHED)
+    db_post = Post(
+        **post.dict(),
+        status=PostStatus.PUBLISHED,
+        liked_by_user_1=False
+    )
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
