@@ -70,15 +70,23 @@ class EventCard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   left: 8,
-                  child: Chip(
-                    label: Text(
-                      event.registrationsOpen ? 'Aberto' : 'Fechado',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    decoration: BoxDecoration(
+                      color: isRegistered ? Colors.blue.shade600 : (event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600),
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
-                    backgroundColor: event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600,
-                    avatar: Icon(event.registrationsOpen ? Icons.check_circle_outline : Icons.cancel_outlined, color: Colors.white, size: 14),
-                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
-                    visualDensity: VisualDensity.compact,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(isRegistered ? Icons.star : (event.registrationsOpen ? Icons.check_circle_outline : Icons.cancel_outlined), color: Colors.white, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          isRegistered ? 'Inscrito' : (event.registrationsOpen ? 'Aberto' : 'Fechado'),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
