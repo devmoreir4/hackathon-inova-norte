@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/core/widgets/geometric_background.dart';
 import 'package:frontend/app/features/auth/screens/login_screen.dart';
-import 'package:frontend/app/features/community/screens/aulas_tab.dart';
-import 'package:frontend/app/features/community/screens/calendario_tab.dart';
+import 'package:frontend/app/features/community/screens/cursos_tab.dart';
+import 'package:frontend/app/features/community/screens/eventos_tab.dart';
 import 'package:frontend/app/features/community/screens/forum_tab.dart';
 import 'package:frontend/app/features/home/screens/home_tab.dart';
 
@@ -46,8 +46,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         controller: _tabController,
         children: const [
           ForumTab(),
-          AulasTab(),
-          CalendarioTab(),
+          const CursosTab(),
+          const EventosTab(),
         ],
       ),
       const Center(child: Text('Menu Screen')),
@@ -105,8 +105,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 indicatorColor: Colors.white,
                 tabs: const [
                   Tab(text: 'Fórum'),
-                  Tab(text: 'Aulas'),
-                  Tab(text: 'Calendário'),
+                  Tab(text: 'Cursos'),
+                  Tab(text: 'Eventos'),
                 ],
               )
             : null,
