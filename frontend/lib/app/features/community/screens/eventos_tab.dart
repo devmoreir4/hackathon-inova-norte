@@ -238,32 +238,35 @@ class _EventosTabState extends State<EventosTab> {
 
   Widget _buildEventTypeFilters() {
     if (_eventTypes.isEmpty) return const SizedBox.shrink();
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _eventTypes.length,
-        itemBuilder: (context, index) {
-          final type = _eventTypes[index];
-          final isSelected = type == _selectedFilter;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: FilterChip(
-              label: Text(_formatFilterName(type)),
-              selected: isSelected,
-              onSelected: (selected) => _selectFilter(type),
-              backgroundColor: Colors.white.withOpacity(0.1),
-              selectedColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? const Color(0xFF003C44) : Colors.white,
-                fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+      child: SizedBox(
+        height: 50,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          itemCount: _eventTypes.length,
+          itemBuilder: (context, index) {
+            final type = _eventTypes[index];
+            final isSelected = type == _selectedFilter;
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FilterChip(
+                label: Text(_formatFilterName(type)),
+                selected: isSelected,
+                onSelected: (selected) => _selectFilter(type),
+                backgroundColor: Colors.white.withOpacity(0.1),
+                selectedColor: Colors.white,
+                labelStyle: TextStyle(
+                  color: isSelected ? const Color(0xFF003C44) : Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                checkmarkColor: const Color(0xFF003C44),
+                shape: const StadiumBorder(),
               ),
-              checkmarkColor: const Color(0xFF003C44),
-              shape: const StadiumBorder(),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
