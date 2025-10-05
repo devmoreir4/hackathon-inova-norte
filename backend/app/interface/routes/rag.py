@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from app.application.services.rag_service import RAGService
 
-rag_router = APIRouter(prefix="/rag", tags=["RAG"])
+rag_router = APIRouter(prefix="/rag", tags=["AI RAG Chat"])
 
 class ChatMessage(BaseModel):
     message: str

@@ -13,7 +13,8 @@ from app.domain.models import (
     Community, CommunityType, CommunityMembership, MembershipRole,
     Event, EventType, EventRegistration,
     Post, PostStatus, Comment,
-    UserLevel, Badge, UserBadge, UserPoints
+    UserLevel, Badge, UserBadge, UserPoints,
+    Course, CourseCategory, CourseEnrollment
 )
 
 def init_users(db: Session):
@@ -237,7 +238,8 @@ def init_forum_posts(db: Session, users):
             "author_id": users[0].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 45,
-            "likes_count": 12
+            "likes_count": 12,
+            "liked_by_user_1": False
         },
         {
             "title": "Oportunidade de parceria - Agricultura orgânica",
@@ -246,7 +248,8 @@ def init_forum_posts(db: Session, users):
             "author_id": users[4].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 89,
-            "likes_count": 15
+            "likes_count": 15,
+            "liked_by_user_1": False
         },
         {
             "title": "Educação financeira: Por onde começar?",
@@ -255,21 +258,24 @@ def init_forum_posts(db: Session, users):
             "author_id": users[3].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 134,
-            "likes_count": 28
+            "likes_count": 28,
+            "liked_by_user_1": False
         },
         {
             "title": "Tecnologia no cooperativismo: O futuro é agora",
             "content": "Como jovens cooperados, precisamos estar atentos às inovações tecnológicas que podem revolucionar o cooperativismo.\n\nBlockchain, fintechs, inteligência artificial... Como vocês veem essas tecnologias impactando nosso setor?\n\nVamos discutir ideias e oportunidades!",
             "category": "tecnologia",
-            "author_id": users[1].id,
+            "author_id": users[0].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 67,
-            "likes_count": 19
+            "likes_count": 19,
+            "liked_by_user_1": True
         }
     ]
     
     posts = []
     for post_data in posts_data:
+        print(f"Creating post with liked_by_user_1: {post_data.get('liked_by_user_1')}")
         post = Post(**post_data)
         db.add(post)
         posts.append(post)
@@ -413,6 +419,41 @@ def init_gamification_badges(db: Session):
             "icon_url": "https://example.com/badges/community-mentor.png",
             "points_required": 500,
             "category": "mentorship"
+        },
+        {
+            "name": "Primeiro Curso",
+            "description": "Se inscreveu em seu primeiro curso",
+            "icon_url": "https://example.com/badges/first-course.png",
+            "points_required": 5,
+            "category": "courses"
+        },
+        {
+            "name": "Estudante Dedicado",
+            "description": "Completou seu primeiro curso",
+            "icon_url": "https://example.com/badges/dedicated-student.png",
+            "points_required": 30,
+            "category": "courses"
+        },
+        {
+            "name": "Aprendiz Contínuo",
+            "description": "Completou 3 cursos",
+            "icon_url": "https://example.com/badges/continuous-learner.png",
+            "points_required": 100,
+            "category": "courses"
+        },
+        {
+            "name": "Especialista em Educação",
+            "description": "Completou 5 cursos",
+            "icon_url": "https://example.com/badges/education-specialist.png",
+            "points_required": 200,
+            "category": "courses"
+        },
+        {
+            "name": "Instrutor",
+            "description": "Criou seu primeiro curso como instrutor",
+            "icon_url": "https://example.com/badges/instructor.png",
+            "points_required": 50,
+            "category": "courses"
         }
     ]
     
@@ -435,7 +476,6 @@ def init_gamification_data(db: Session, users, posts, events):
     # Create user levels
     user_levels = []
     for i, user in enumerate(users):
-        # Give different starting points to make it interesting
         base_points = (i + 1) * 50
         level = UserLevel(
             user_id=user.id,
@@ -522,6 +562,32 @@ def init_user_badges(db: Session, users, badges):
         {"user_id": users[4].id, "badge_id": badges[4].id},  # Membro da Comunidade
         {"user_id": users[4].id, "badge_id": badges[5].id},  # Líder de Comunidade
         {"user_id": users[4].id, "badge_id": badges[7].id},  # Empreendedor Ativo
+        
+        # Course-related badges
+        # Ana (User 0) - Has completed courses
+        {"user_id": users[0].id, "badge_id": badges[10].id},  # Primeiro Curso
+        {"user_id": users[0].id, "badge_id": badges[11].id},  # Estudante Dedicado
+        {"user_id": users[0].id, "badge_id": badges[12].id},  # Aprendiz Contínuo
+        {"user_id": users[0].id, "badge_id": badges[14].id},  # Instrutor
+        
+        # Carlos (User 1) - Young with tech focus
+        {"user_id": users[1].id, "badge_id": badges[10].id},  # Primeiro Curso
+        {"user_id": users[1].id, "badge_id": badges[11].id},  # Estudante Dedicado
+        
+        # Maria (User 2) - Retiree with education focus
+        {"user_id": users[2].id, "badge_id": badges[10].id},  # Primeiro Curso
+        {"user_id": users[2].id, "badge_id": badges[11].id},  # Estudante Dedicado
+        {"user_id": users[2].id, "badge_id": badges[12].id},  # Aprendiz Contínuo
+        
+        # João (User 3) - General user
+        {"user_id": users[3].id, "badge_id": badges[10].id},  # Primeiro Curso
+        {"user_id": users[3].id, "badge_id": badges[11].id},  # Estudante Dedicado
+        
+        # Patricia (User 4) - Entrepreneur with business focus
+        {"user_id": users[4].id, "badge_id": badges[10].id},  # Primeiro Curso
+        {"user_id": users[4].id, "badge_id": badges[11].id},  # Estudante Dedicado
+        {"user_id": users[4].id, "badge_id": badges[12].id},  # Aprendiz Contínuo
+        {"user_id": users[4].id, "badge_id": badges[14].id},  # Instrutor
     ]
     
     user_badges = []
@@ -537,17 +603,139 @@ def init_user_badges(db: Session, users, badges):
     print(f"{len(user_badges)} user badges created!")
     return user_badges
 
+def init_courses(db: Session, users):
+    print("Creating courses...")
+    
+    courses_data = [
+        {
+            "title": "Educação Financeira Básica",
+            "description": "Aprenda os conceitos fundamentais de educação financeira, incluindo orçamento pessoal, controle de gastos e planejamento financeiro.",
+            "category": CourseCategory.FINANCIAL_EDUCATION,
+            "instructor_id": users[0].id,  # Ana Silva Santos
+            "points_reward": 50,
+            "image_url": "https://example.com/courses/financial-education.jpg",
+            "video_url": "https://example.com/videos/financial-education-intro.mp4",
+            "content": "Este curso aborda os pilares da educação financeira: planejamento, controle e investimento. Você aprenderá a organizar suas finanças pessoais e tomar decisões mais conscientes sobre seu dinheiro."
+        },
+        {
+            "title": "Cooperativismo: Princípios e Valores",
+            "description": "Conheça os princípios do cooperativismo, sua história no Brasil e como aplicar esses valores no dia a dia.",
+            "category": CourseCategory.COOPERATIVISM,
+            "instructor_id": users[2].id,  # Maria José Costa
+            "points_reward": 60,
+            "image_url": "https://example.com/courses/cooperativism.jpg",
+            "video_url": "https://example.com/videos/cooperativism-principles.mp4",
+            "content": "O cooperativismo é mais que um modelo de negócio, é uma filosofia de vida. Neste curso, você entenderá como os princípios cooperativistas podem transformar sua comunidade e sua vida."
+        },
+        {
+            "title": "Empreendedorismo Digital",
+            "description": "Descubra como iniciar e gerenciar um negócio digital, desde a ideia até a execução.",
+            "category": CourseCategory.BUSINESS,
+            "instructor_id": users[1].id,  # Carlos Eduardo Oliveira
+            "points_reward": 75,
+            "image_url": "https://example.com/courses/digital-entrepreneurship.jpg",
+            "video_url": "https://example.com/videos/digital-entrepreneurship.mp4",
+            "content": "O mundo digital oferece inúmeras oportunidades para empreendedores. Aprenda a identificar nichos, criar produtos digitais e escalar seu negócio online."
+        },
+        {
+            "title": "Investimentos para Iniciantes",
+            "description": "Introdução ao mundo dos investimentos, tipos de aplicações e como começar a investir com segurança.",
+            "category": CourseCategory.FINANCIAL_EDUCATION,
+            "instructor_id": users[3].id,  # João Paulo Ferreira
+            "points_reward": 80,
+            "image_url": "https://example.com/courses/investments.jpg",
+            "video_url": "https://example.com/videos/investments-basics.mp4",
+            "content": "Investir não é apenas para quem tem muito dinheiro. Aprenda os conceitos básicos de investimentos e como começar a construir seu patrimônio desde cedo."
+        },
+        {
+            "title": "Gestão de Cooperativas",
+            "description": "Conceitos essenciais para gestão eficiente de cooperativas, incluindo governança e transparência.",
+            "category": CourseCategory.COOPERATIVISM,
+            "instructor_id": users[4].id,  # Patricia Souza Lima
+            "points_reward": 70,
+            "image_url": "https://example.com/courses/cooperative-management.jpg",
+            "video_url": "https://example.com/videos/cooperative-management.mp4",
+            "content": "A gestão de cooperativas requer conhecimentos específicos sobre governança, transparência e participação democrática. Este curso aborda essas questões fundamentais."
+        },
+        {
+            "title": "Marketing Digital para Pequenos Negócios",
+            "description": "Estratégias de marketing digital acessíveis para pequenos empreendedores e cooperados.",
+            "category": CourseCategory.BUSINESS,
+            "instructor_id": users[0].id,  # Ana Silva Santos
+            "points_reward": 65,
+            "image_url": "https://example.com/courses/digital-marketing.jpg",
+            "video_url": "https://example.com/videos/digital-marketing.mp4",
+            "content": "O marketing digital democratizou a publicidade. Aprenda estratégias eficazes e de baixo custo para promover seu negócio online."
+        }
+    ]
+    
+    courses = []
+    for course_data in courses_data:
+        course = Course(**course_data)
+        db.add(course)
+        courses.append(course)
+    
+    db.commit()
+    for course in courses:
+        db.refresh(course)
+    
+    print(f"{len(courses)} courses created!")
+    return courses
+
+def init_course_enrollments(db: Session, users, courses):
+    print("Creating course enrollments...")
+    
+    enrollments_data = [
+        # Ana (User 0) - Entrepreneur
+        {"course_id": courses[0].id, "user_id": users[0].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=5)},
+        {"course_id": courses[2].id, "user_id": users[0].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=3)},
+        {"course_id": courses[5].id, "user_id": users[0].id, "is_completed": False},
+        
+        # Carlos (User 1) - Young
+        {"course_id": courses[2].id, "user_id": users[1].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=7)},
+        {"course_id": courses[3].id, "user_id": users[1].id, "is_completed": False},
+        {"course_id": courses[5].id, "user_id": users[1].id, "is_completed": False},
+        
+        # Maria (User 2) - Retiree
+        {"course_id": courses[0].id, "user_id": users[2].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=10)},
+        {"course_id": courses[1].id, "user_id": users[2].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=8)},
+        {"course_id": courses[3].id, "user_id": users[2].id, "is_completed": False},
+        
+        # João (User 3) - General
+        {"course_id": courses[0].id, "user_id": users[3].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=6)},
+        {"course_id": courses[3].id, "user_id": users[3].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=4)},
+        {"course_id": courses[1].id, "user_id": users[3].id, "is_completed": False},
+        
+        # Patricia (User 4) - Entrepreneur
+        {"course_id": courses[2].id, "user_id": users[4].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=9)},
+        {"course_id": courses[4].id, "user_id": users[4].id, "is_completed": True, "completed_at": datetime.now() - timedelta(days=2)},
+        {"course_id": courses[5].id, "user_id": users[4].id, "is_completed": False},
+    ]
+    
+    enrollments = []
+    for enrollment_data in enrollments_data:
+        enrollment = CourseEnrollment(**enrollment_data)
+        db.add(enrollment)
+        enrollments.append(enrollment)
+    
+    db.commit()
+    for enrollment in enrollments:
+        db.refresh(enrollment)
+    
+    print(f"{len(enrollments)} course enrollments created!")
+    return enrollments
+
 def main():
     print("Initializing database with sample data...")
     
-    # Create tables
+    db_dir = os.path.join(os.path.dirname(__file__), "data", "db")
+    os.makedirs(db_dir, exist_ok=True)
+    
     create_tables()
     
-    # Create session
     db = SessionLocal()
     
     try:
-        # Initialize data
         users = init_users(db)
         communities = init_communities(db, users)
         community_memberships = init_community_memberships(db, users, communities)
@@ -555,6 +743,8 @@ def main():
         event_registrations = init_event_registrations(db, users, events)
         posts = init_forum_posts(db, users)
         comments = init_forum_comments(db, users, posts)
+        courses = init_courses(db, users)
+        course_enrollments = init_course_enrollments(db, users, courses)
         badges = init_gamification_badges(db)
         user_badges = init_user_badges(db, users, badges)
         gamification_data = init_gamification_data(db, users, posts, events)
@@ -568,6 +758,8 @@ def main():
         print(f"   - Event Registrations: {len(event_registrations)}")
         print(f"   - Forum Posts: {len(posts)}")
         print(f"   - Forum Comments: {len(comments)}")
+        print(f"   - Courses: {len(courses)}")
+        print(f"   - Course Enrollments: {len(course_enrollments)}")
         print(f"   - Badges: {len(badges)}")
         print(f"   - User Badges: {len(user_badges)}")
         print(f"   - Gamification Records: {len(gamification_data)}")

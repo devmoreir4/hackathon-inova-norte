@@ -1,8 +1,12 @@
-# hackathon-inova-norte
+# Hackathon Inova Norte
 
 ## Como Executar Backend
 
-### 1. Configurar Ambiente Virtual
+### 1. Pré-requisitos
+
+- Ter o [Python](https://www.python.org/downloads/) instalado e configurado no seu ambiente.
+
+### 2. Configurar Ambiente Virtual
 
 ```bash
 # Criar ambiente virtual
@@ -15,13 +19,13 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 2. Instalar Dependências
+### 3. Instalar Dependências
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Executar a Aplicação
+### 4. Executar a Aplicação
 
 ```bash
 # Desenvolvimento (com reload automático)
@@ -31,7 +35,7 @@ python run.py
 uvicorn app.interface:app --reload --host 0.0.0.0 --port 5000
 ```
 
-### 4. Acessar a API
+### 5. Acessar a API
 
 - **API**: http://localhost:5000
 - **Documentação Swagger**: http://localhost:5000/docs
@@ -61,7 +65,7 @@ flutter pub get
 flutter run
 ```
 
-## Testes
+## Testes do Backend
 
 ```bash
 # Executar todos os testes
@@ -78,3 +82,9 @@ pytest tests/test_users.py -v
 
 ```bash
 python reset_db.py
+```
+
+## Popular Banco de Dados
+```bash
+python init_db.py
+```

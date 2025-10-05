@@ -31,20 +31,38 @@ class LoginScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+                      transitionDuration: const Duration(milliseconds: 500),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
                   );
                 },
               ),
               const SizedBox(height: 16),
               _ProfileCard(
                 icon: Icons.person,
-                title: 'Leonardo Marino',
+                title: 'Ana Silva Santos',
                 account: '16.598-3',
                 branch: '3007',
                 onTap: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
+                      transitionDuration: const Duration(milliseconds: 500),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                    ),
                   );
                 },
               ),

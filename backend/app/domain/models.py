@@ -5,7 +5,9 @@ from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Enum as
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 
+
 Base = declarative_base()
+
 
 class UserType(str, Enum):
     YOUNG = "young"
@@ -13,10 +15,12 @@ class UserType(str, Enum):
     RETIREE = "retiree"
     GENERAL = "general"
 
+
 class PostStatus(str, Enum):
     DRAFT = "draft"
     PUBLISHED = "published"
     ARCHIVED = "archived"
+
 
 class EventType(str, Enum):
     COOPERATIVE_FAIR = "cooperative_fair"
@@ -25,16 +29,19 @@ class EventType(str, Enum):
     EDUCATIONAL_ACTIVITY = "educational_activity"
     OTHER = "other"
 
+
 class CommunityType(str, Enum):
     PUBLIC = "public"
     PRIVATE = "private"
     INVITE_ONLY = "invite_only"
+
 
 class MembershipRole(str, Enum):
     OWNER = "owner"
     ADMIN = "admin"
     MODERATOR = "moderator"
     MEMBER = "member"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -47,6 +54,7 @@ class User(Base):
     active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 
 class Post(Base):
     __tablename__ = "posts"
@@ -62,6 +70,8 @@ class Post(Base):
     published_at = Column(DateTime(timezone=True), nullable=True)
     views_count = Column(Integer, default=0)
     likes_count = Column(Integer, default=0)
+    liked_by_user_1 = Column(Boolean, default=False) # For hardcoded user 1
+
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -73,6 +83,7 @@ class Comment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     parent_comment_id = Column(Integer, nullable=True)  # For nested comments
+
 
 class Event(Base):
     __tablename__ = "events"
@@ -90,6 +101,7 @@ class Event(Base):
     organizer_id = Column(Integer, nullable=False)  # FK to User
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
 class EventRegistration(Base):
     __tablename__ = "event_registrations"
     
@@ -99,6 +111,7 @@ class EventRegistration(Base):
     registered_at = Column(DateTime(timezone=True), server_default=func.now())
     attended = Column(Boolean, default=False)
     feedback = Column(Text, nullable=True)
+
 
 class Community(Base):
     __tablename__ = "communities"
@@ -116,6 +129,7 @@ class Community(Base):
     image_url = Column(String(500), nullable=True)
     rules = Column(Text, nullable=True)
 
+
 class CommunityMembership(Base):
     __tablename__ = "community_memberships"
     
@@ -126,7 +140,6 @@ class CommunityMembership(Base):
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
     active = Column(Boolean, default=True)
 
-# ====== GAMIFICATION MODELS ======
 
 class UserLevel(Base):
     __tablename__ = "user_levels"
@@ -139,6 +152,7 @@ class UserLevel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
+
 class Badge(Base):
     __tablename__ = "badges"
     
@@ -150,6 +164,7 @@ class Badge(Base):
     category = Column(String(50), nullable=False)  # forum, events, community, education
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+
 class UserBadge(Base):
     __tablename__ = "user_badges"
     
@@ -158,6 +173,7 @@ class UserBadge(Base):
     badge_id = Column(Integer, nullable=False)  # FK to Badge
     earned_at = Column(DateTime(timezone=True), server_default=func.now())
     is_displayed = Column(Boolean, default=True)
+
 
 class UserPoints(Base):
     __tablename__ = "user_points"
@@ -169,3 +185,37 @@ class UserPoints(Base):
     source_id = Column(Integer, nullable=True)  # post_id, event_id, etc
     description = Column(String(200), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class CourseCategory(str, Enum):
+    FINANCIAL_EDUCATION = "financial_education"
+    COOPERATIVISM = "cooperativism"
+    BUSINESS = "business"
+    OTHER = "other"
+
+
+class Course(Base):
+    __tablename__ = "courses"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    category = Column(SQLEnum(CourseCategory), nullable=False)
+    instructor_id = Column(Integer, nullable=False)  # FK to User
+    points_reward = Column(Integer, default=50)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    image_url = Column(String(500), nullable=True)
+    video_url = Column(String(500), nullable=True)
+    content = Column(Text, nullable=True)
+
+
+class CourseEnrollment(Base):
+    __tablename__ = "course_enrollments"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, nullable=False)  # FK to Course
+    user_id = Column(Integer, nullable=False)   # FK to User
+    enrolled_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    is_completed = Column(Boolean, default=False)
