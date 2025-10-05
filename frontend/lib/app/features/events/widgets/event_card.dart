@@ -85,93 +85,97 @@ class EventCard extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 60,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF003C44).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          DateFormat('dd').format(event.startDate),
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF003C44),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          DateFormat('MMM', 'pt_BR').format(event.startDate).toUpperCase(),
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF003C44),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatEventType(event.eventType),
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11,
-                            color: const Color(0xFF00838A),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          event.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: const Color(0xFF003C44),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text(
-                              DateFormat('HH:mm').format(event.startDate),
-                              style: GoogleFonts.lato(color: Colors.grey[700]),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch, // Stretch children to equal height
+                  children: [
+                    Container(
+                      width: 85, // Increased width for better proportion
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF003C44).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            DateFormat('dd').format(event.startDate),
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFF003C44),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 26, // Increased font size
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                event.location,
-                                overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            DateFormat('MMM', 'pt_BR').format(event.startDate).toUpperCase(),
+                            style: GoogleFonts.poppins(
+                              color: const Color(0xFF003C44),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16, // Increased font size
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _formatEventType(event.eventType),
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                              color: const Color(0xFF00838A),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            event.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: const Color(0xFF003C44),
+                            ),
+                          ),
+                          const Spacer(), // Pushes content below to the bottom
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                DateFormat('HH:mm').format(event.startDate),
                                 style: GoogleFonts.lato(color: Colors.grey[700]),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  event.location,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.lato(color: Colors.grey[700]),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
-                ],
+                    const SizedBox(width: 8),
+                    const Center(
+                      child: Icon(Icons.chevron_right, color: Colors.grey, size: 28),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
