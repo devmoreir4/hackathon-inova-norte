@@ -62,6 +62,7 @@ class Post(Base):
     published_at = Column(DateTime(timezone=True), nullable=True)
     views_count = Column(Integer, default=0)
     likes_count = Column(Integer, default=0)
+    liked_by_user_1 = Column(Boolean, default=False) # For hardcoded user 1
 
 class Comment(Base):
     __tablename__ = "comments"

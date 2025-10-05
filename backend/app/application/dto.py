@@ -85,6 +85,7 @@ class PostResponse(PostBase):
     published_at: Optional[datetime] = None
     views_count: int
     likes_count: int
+    liked_by_user_1: bool
 
 class CommentBase(BaseModel):
     content: str

@@ -100,7 +100,13 @@ def like_post(post_id: int, db: Session = Depends(get_db)):
             detail="Post not found"
         )
     
-    post.likes_count += 1
+    if post.liked_by_user_1:
+        post.likes_count -= 1
+        post.liked_by_user_1 = False
+    else:
+        post.likes_count += 1
+        post.liked_by_user_1 = True
+
     db.commit()
     db.refresh(post)
     

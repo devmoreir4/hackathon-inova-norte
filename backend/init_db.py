@@ -237,7 +237,8 @@ def init_forum_posts(db: Session, users):
             "author_id": users[0].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 45,
-            "likes_count": 12
+            "likes_count": 12,
+            "liked_by_user_1": False
         },
         {
             "title": "Oportunidade de parceria - Agricultura orgânica",
@@ -246,7 +247,8 @@ def init_forum_posts(db: Session, users):
             "author_id": users[4].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 89,
-            "likes_count": 15
+            "likes_count": 15,
+            "liked_by_user_1": False
         },
         {
             "title": "Educação financeira: Por onde começar?",
@@ -255,7 +257,8 @@ def init_forum_posts(db: Session, users):
             "author_id": users[3].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 134,
-            "likes_count": 28
+            "likes_count": 28,
+            "liked_by_user_1": False
         },
         {
             "title": "Tecnologia no cooperativismo: O futuro é agora",
@@ -264,12 +267,14 @@ def init_forum_posts(db: Session, users):
             "author_id": users[1].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 67,
-            "likes_count": 19
+            "likes_count": 19,
+            "liked_by_user_1": False
         }
     ]
     
     posts = []
     for post_data in posts_data:
+        print(f"Creating post with liked_by_user_1: {post_data.get('liked_by_user_1')}")
         post = Post(**post_data)
         db.add(post)
         posts.append(post)
