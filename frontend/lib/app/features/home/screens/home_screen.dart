@@ -5,6 +5,7 @@ import 'package:frontend/app/features/community/screens/cursos_tab.dart';
 import 'package:frontend/app/features/community/screens/eventos_tab.dart';
 import 'package:frontend/app/features/community/screens/forum_tab.dart';
 import 'package:frontend/app/features/home/screens/home_tab.dart';
+import 'package:frontend/app/features/chat/screens/chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -62,7 +63,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ChatScreen()));
+            },
             icon: const Icon(
               Icons.chat_bubble_outline,
               color: Colors.white,
