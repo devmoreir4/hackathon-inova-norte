@@ -110,7 +110,7 @@ class _EventosTabState extends State<EventosTab> {
                   padding: const EdgeInsets.only(top: 8),
                   itemCount: events.length,
                   itemBuilder: (context, index) {
-                    return EventCard(event: events[index], onRegister: () => _register(events[index].id));
+                    return EventCard(event: events[index]);
                   },
                 ),
               );
