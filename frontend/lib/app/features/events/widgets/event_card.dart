@@ -10,6 +10,21 @@ class EventCard extends StatelessWidget {
 
   const EventCard({Key? key, required this.event}) : super(key: key);
 
+  String _formatEventType(String eventType) {
+    switch (eventType) {
+      case 'cooperative_fair':
+        return 'Feira Cooperativa';
+      case 'lecture':
+        return 'Palestra';
+      case 'business_round':
+        return 'Rodada de Negócios';
+      case 'educational_activity':
+        return 'Atividade Educativa';
+      default:
+        return 'Outro';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -66,6 +81,15 @@ class EventCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      _formatEventType(event.eventType),
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        color: const Color(0xFF00838A),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
                       event.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -100,9 +124,22 @@ class EventCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    Chip(
+                      label: Text(
+                        event.registrationsOpen ? 'Inscrições Abertas' : 'Inscrições Encerradas',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                      ),
+                      backgroundColor: event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600,
+                      avatar: Icon(event.registrationsOpen ? Icons.check_circle : Icons.cancel, color: Colors.white, size: 14),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      visualDensity: VisualDensity.compact,
+                    )
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
             ],
           ),
         ),
