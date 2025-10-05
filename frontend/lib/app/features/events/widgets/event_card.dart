@@ -32,7 +32,7 @@ class EventCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: Colors.white,
       elevation: 3,
-      clipBehavior: Clip.antiAlias, // Ensures the InkWell splash is clipped to the card's shape
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -42,106 +42,139 @@ class EventCard extends StatelessWidget {
             ),
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF003C44).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  ),
+                  child: Image.network(
+                    // Using picsum as a placeholder for event images
+                    'https://picsum.photos/seed/${event.id}/400/200',
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                       return Container(
+                        height: 120,
+                        color: Colors.grey[200],
+                        child: Icon(Icons.event, size: 40, color: Colors.grey[400]),
+                      );
+                    },
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('dd').format(event.startDate),
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xFF003C44),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Chip(
+                    label: Text(
+                      event.registrationsOpen ? 'Aberto' : 'Fechado',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                     ),
-                    Text(
-                      DateFormat('MMM', 'pt_BR').format(event.startDate).toUpperCase(),
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xFF003C44),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
+                    backgroundColor: event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600,
+                    avatar: Icon(event.registrationsOpen ? Icons.check_circle_outline : Icons.cancel_outlined, color: Colors.white, size: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _formatEventType(event.eventType),
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                        color: const Color(0xFF00838A),
-                      ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 60,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF003C44).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      event.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: const Color(0xFF003C44),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
                         Text(
-                          DateFormat('HH:mm').format(event.startDate),
-                          style: GoogleFonts.lato(color: Colors.grey[700]),
+                          DateFormat('dd').format(event.startDate),
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF003C44),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            event.location,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.lato(color: Colors.grey[700]),
+                        Text(
+                          DateFormat('MMM', 'pt_BR').format(event.startDate).toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF003C44),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Chip(
-                      label: Text(
-                        event.registrationsOpen ? 'Inscrições Abertas' : 'Inscrições Encerradas',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
-                      ),
-                      backgroundColor: event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600,
-                      avatar: Icon(event.registrationsOpen ? Icons.check_circle : Icons.cancel, color: Colors.white, size: 14),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      visualDensity: VisualDensity.compact,
-                    )
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatEventType(event.eventType),
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                            color: const Color(0xFF00838A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          event.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: const Color(0xFF003C44),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time, size: 14, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Text(
+                              DateFormat('HH:mm').format(event.startDate),
+                              style: GoogleFonts.lato(color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                event.location,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.lato(color: Colors.grey[700]),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
+                ],
               ),
-              const SizedBox(width: 8),
-              const Icon(Icons.chevron_right, color: Colors.grey, size: 28),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
