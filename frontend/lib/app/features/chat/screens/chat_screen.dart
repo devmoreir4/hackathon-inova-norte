@@ -140,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(width: 8.0),
           FloatingActionButton(
             onPressed: _sendMessage,
-            backgroundColor: const Color(0xFF93C83E), // Accent green for send button
+            backgroundColor: const Color(0xFF00838A), // Sicoob primaryMedium color
             mini: true,
             elevation: 2,
             child: const Icon(Icons.send, color: Colors.white),
@@ -168,12 +168,7 @@ class _ChatMessageBubble extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
           color: isUser ? const Color(0xFF00838A) : const Color(0xFF004B44), // Sicoob colors
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16.0),
-            topRight: const Radius.circular(16.0),
-            bottomLeft: isUser ? const Radius.circular(16.0) : const Radius.circular(4.0),
-            bottomRight: isUser ? const Radius.circular(4.0) : const Radius.circular(16.0),
-          ),
+          borderRadius: BorderRadius.circular(12.0),
         ),
         child: Column(
           crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
