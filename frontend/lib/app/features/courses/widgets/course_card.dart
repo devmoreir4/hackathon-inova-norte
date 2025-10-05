@@ -17,12 +17,13 @@ class CourseCard extends StatelessWidget {
     }
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: Colors.white, // Force card background to be white
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      elevation: 5,
-      shadowColor: Colors.black.withOpacity(0.1),
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -34,27 +35,28 @@ class CourseCard extends StatelessWidget {
             child: imageUrl != null
                 ? Image.network(
                     imageUrl,
-                    height: 180,
+                    height: 160,
                     fit: BoxFit.cover,
-                    // Loading and error builders can be added for better UX
                     loadingBuilder: (context, child, progress) {
                       return progress == null
                           ? child
                           : const SizedBox(
-                              height: 180,
+                              height: 160,
                               child: Center(child: CircularProgressIndicator()),
                             );
                     },
                     errorBuilder: (context, error, stackTrace) {
-                      return const SizedBox(
-                        height: 180,
-                        child: Icon(Icons.school, size: 50, color: Colors.grey),
+                      return Container(
+                        height: 160,
+                        color: Colors.grey[200],
+                        child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
                       );
                     },
                   )
-                : const SizedBox(
-                    height: 180,
-                    child: Icon(Icons.school, size: 50, color: Colors.grey),
+                : Container(
+                    height: 160,
+                    color: Colors.grey[200],
+                    child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
                   ),
           ),
           Padding(
@@ -64,25 +66,27 @@ class CourseCard extends StatelessWidget {
               children: [
                 Text(
                   course.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600, // Bolder for more emphasis
                     color: const Color(0xFF003C44), // Sicoob dark green
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   course.description,
-                  maxLines: 2,
+                  maxLines: 3, // Allow more text for description
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.lato(
                     fontSize: 14,
-                    color: Colors.black54,
+                    color: Colors.black.withOpacity(0.6),
+                    height: 1.4, // Improved line spacing
                   ),
                 ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.center,
+                const SizedBox(height: 20),
+                Center(
                   child: ElevatedButton(
                     onPressed: () {
                       // TODO: Implement navigation to course details screen
@@ -90,14 +94,16 @@ class CourseCard extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF98CE00), // Sicoob green
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(25),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      elevation: 2,
                     ),
                     child: Text(
                       'Quero aprender',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
+                        fontSize: 15,
                         color: Colors.white,
                       ),
                     ),

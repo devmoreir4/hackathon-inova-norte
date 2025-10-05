@@ -36,7 +36,7 @@ class _CursosTabState extends State<CursosTab> {
               child: Text(
                 'Erro ao carregar os cursos.\nPor favor, tente novamente mais tarde.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.lato(),
+                style: GoogleFonts.lato(color: Colors.black87),
               ),
             ),
           );
@@ -45,14 +45,14 @@ class _CursosTabState extends State<CursosTab> {
           return Center(
             child: Text(
               'Nenhum curso disponível no momento.',
-              style: GoogleFonts.lato(),
+              style: GoogleFonts.lato(color: Colors.black87),
             ),
           );
         }
 
         final courses = snapshot.data!;
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 8.0),
+          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
           itemCount: courses.length,
           itemBuilder: (context, index) {
             return CourseCard(course: courses[index]);
