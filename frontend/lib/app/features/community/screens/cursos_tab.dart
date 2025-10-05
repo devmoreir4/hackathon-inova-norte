@@ -21,6 +21,12 @@ class _CursosTabState extends State<CursosTab> {
     _coursesFuture = _courseService.fetchCourses();
   }
 
+  Future<void> _refreshCourses() async {
+    setState(() {
+      _coursesFuture = _courseService.fetchCourses();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Course>>(
@@ -36,7 +42,7 @@ class _CursosTabState extends State<CursosTab> {
               child: Text(
                 'Erro ao carregar os cursos.\nPor favor, tente novamente mais tarde.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.lato(color: Colors.black87),
+                style: GoogleFonts.lato(color: Colors.white), // Changed to white for dark background
               ),
             ),
           );
@@ -45,18 +51,21 @@ class _CursosTabState extends State<CursosTab> {
           return Center(
             child: Text(
               'Nenhum curso disponível no momento.',
-              style: GoogleFonts.lato(color: Colors.black87),
+              style: GoogleFonts.lato(color: Colors.white), // Changed to white for dark background
             ),
           );
         }
 
         final courses = snapshot.data!;
-        return ListView.builder(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-          itemCount: courses.length,
-          itemBuilder: (context, index) {
-            return CourseCard(course: courses[index]);
-          },
+        return RefreshIndicator(
+          onRefresh: _refreshCourses,
+          child: ListView.builder(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+            itemCount: courses.length,
+            itemBuilder: (context, index) {
+              return CourseCard(course: courses[index]);
+            },
+          ),
         );
       },
     );
