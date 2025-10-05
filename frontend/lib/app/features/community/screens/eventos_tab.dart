@@ -215,7 +215,11 @@ class _EventosTabState extends State<EventosTab> {
                   itemBuilder: (context, index) {
                     final event = value[index];
                     final isRegistered = _myRegistrations.containsKey(event.id);
-                    return EventCard(event: event, isRegistered: isRegistered);
+                    return EventCard(
+                      event: event,
+                      isRegistered: isRegistered,
+                      onStatusChanged: _fetchAndSetInitialEvents, // Pass the refresh function
+                    );
                   },
                 ),
               );

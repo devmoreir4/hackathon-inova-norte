@@ -7,8 +7,9 @@ import 'package:intl/intl.dart';
 class EventCard extends StatelessWidget {
   final Event event;
   final bool isRegistered;
+  final VoidCallback onStatusChanged;
 
-  const EventCard({Key? key, required this.event, required this.isRegistered}) : super(key: key);
+  const EventCard({Key? key, required this.event, required this.isRegistered, required this.onStatusChanged}) : super(key: key);
 
   String _formatEventType(String eventType) {
     switch (eventType) {
@@ -34,13 +35,16 @@ class EventCard extends StatelessWidget {
       elevation: 3,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          // Navigate to details and wait for it to be popped
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => EventDetailsPage(event: event),
             ),
           );
+          // When back, call the refresh function
+          onStatusChanged();
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
