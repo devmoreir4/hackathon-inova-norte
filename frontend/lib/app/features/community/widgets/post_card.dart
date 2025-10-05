@@ -6,6 +6,7 @@ import 'package:frontend/app/data/models/comment.dart';
 import 'package:frontend/app/data/services/forum_service.dart';
 import 'package:frontend/app/features/community/screens/post_details_screen.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -20,19 +21,31 @@ class _PostCardState extends State<PostCard> {
   late Future<User> _author;
   late Post _currentPost;
   final ForumService _forumService = ForumService();
+  late SharedPreferences _prefs;
+  bool _isLikedLocally = false; // Local state for heart icon
 
   @override
   void initState() {
     super.initState();
     _author = UserService().getUser(widget.post.authorId);
     _currentPost = widget.post;
+    _loadLikeStatus();
   }
 
-  Future<void> _likePost() async {
+  Future<void> _loadLikeStatus() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isLikedLocally = _prefs.getBool('post_like_${_currentPost.id}') ?? false;
+    });
+  }
+
+  Future<void> _toggleLike() async {
     try {
       final updatedPost = await _forumService.likePost(_currentPost.id);
       setState(() {
         _currentPost = updatedPost;
+        _isLikedLocally = !_isLikedLocally; // Toggle local state
+        _prefs.setBool('post_like_${_currentPost.id}', _isLikedLocally);
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -114,8 +127,11 @@ class _PostCardState extends State<PostCard> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.favorite_border),
-                      onPressed: _likePost,
+                      icon: Icon(
+                        _isLikedLocally ? Icons.favorite : Icons.favorite_border,
+                        color: _isLikedLocally ? Colors.red : null,
+                      ),
+                      onPressed: _toggleLike,
                       tooltip: 'Curtir post',
                     ),
                     Text('${_currentPost.likes_count}'),
