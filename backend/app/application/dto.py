@@ -80,6 +80,7 @@ class PostResponse(PostBase):
     model_config = ConfigDict(from_attributes=True)
     
     id: int
+    category: str
     status: PostStatus
     author_id: int
     created_at: datetime
