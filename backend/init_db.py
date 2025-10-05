@@ -265,11 +265,11 @@ def init_forum_posts(db: Session, users):
             "title": "Tecnologia no cooperativismo: O futuro é agora",
             "content": "Como jovens cooperados, precisamos estar atentos às inovações tecnológicas que podem revolucionar o cooperativismo.\n\nBlockchain, fintechs, inteligência artificial... Como vocês veem essas tecnologias impactando nosso setor?\n\nVamos discutir ideias e oportunidades!",
             "category": "tecnologia",
-            "author_id": users[1].id,
+            "author_id": users[0].id,
             "status": PostStatus.PUBLISHED,
             "views_count": 67,
             "likes_count": 19,
-            "liked_by_user_1": False
+            "liked_by_user_1": True
         }
     ]
     
