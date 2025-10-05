@@ -3,6 +3,7 @@ import 'package:frontend/app/data/models/post.dart';
 import 'package:frontend/app/data/services/forum_service.dart';
 import 'package:frontend/app/features/community/screens/create_post_screen.dart';
 import 'package:frontend/app/features/community/widgets/post_card.dart';
+import 'dart:collection';
 
 class ForumTab extends StatefulWidget {
   const ForumTab({super.key});
@@ -12,17 +13,21 @@ class ForumTab extends StatefulWidget {
 }
 
 class _ForumTabState extends State<ForumTab> {
-  late Future<List<Post>> _posts;
-  List<Post> _filteredPosts = [];
+  final ForumService _forumService = ForumService();
+  List<Post> _allPosts = [];
+  List<Post> _displayedPosts = [];
+  List<String> _categories = [];
+  String? _selectedCategory;
+  bool _isLoading = true;
+
   final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _posts = ForumService().getPosts();
+    _fetchPosts();
     _searchController.addListener(() {
-      _filterPosts();
-      setState(() {}); // Rebuild to show/hide clear button
+      _applyFilters();
     });
   }
 
@@ -32,23 +37,53 @@ class _ForumTabState extends State<ForumTab> {
     super.dispose();
   }
 
-  void _filterPosts() {
-    final query = _searchController.text.toLowerCase();
-    _posts.then((posts) {
+  Future<void> _fetchPosts() async {
+    setState(() { _isLoading = true; });
+    try {
+      final posts = await _forumService.getPosts();
+      if (!mounted) return;
+
+      final categories = LinkedHashSet<String>.from(posts.map((p) => p.category)).toList();
+
       setState(() {
-        _filteredPosts = posts
-            .where((post) =>
-                post.title.toLowerCase().contains(query) ||
-                post.content.toLowerCase().contains(query))
-            .toList();
+        _allPosts = posts;
+        _categories = ['Todos', ...categories];
+        _selectedCategory = 'Todos';
+        _applyFilters();
+        _isLoading = false;
       });
+    } catch (e) {
+      setState(() { _isLoading = false; });
+      // Handle error
+    }
+  }
+
+  void _selectCategory(String category) {
+    setState(() {
+      _selectedCategory = category;
+      _applyFilters();
     });
   }
 
-  Future<void> _refreshPosts() async {
+  void _applyFilters() {
+    List<Post> filtered = _allPosts;
+
+    // Filter by category
+    if (_selectedCategory != null && _selectedCategory != 'Todos') {
+      filtered = filtered.where((p) => p.category == _selectedCategory).toList();
+    }
+
+    // Filter by search query
+    final query = _searchController.text.toLowerCase();
+    if (query.isNotEmpty) {
+      filtered = filtered.where((post) =>
+              post.title.toLowerCase().contains(query) ||
+              post.content.toLowerCase().contains(query))
+          .toList();
+    }
+
     setState(() {
-      _posts = ForumService().getPosts();
-      _searchController.clear();
+      _displayedPosts = filtered;
     });
   }
 
@@ -56,8 +91,9 @@ class _ForumTabState extends State<ForumTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        _buildCategoryFilters(),
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8), // Adjusted padding
           child: Row(
             children: [
               Expanded(
@@ -70,13 +106,11 @@ class _ForumTabState extends State<ForumTab> {
                     hintStyle: const TextStyle(color: Colors.grey),
                     filled: true,
                     fillColor: Colors.white,
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, color: Colors.black),
-                            onPressed: () {
-                              _searchController.clear();
-                            },
+                            onPressed: () => _searchController.clear(),
                           )
                         : null,
                     border: OutlineInputBorder(
@@ -89,57 +123,81 @@ class _ForumTabState extends State<ForumTab> {
               const SizedBox(width: 16.0),
               Expanded(
                 flex: 1,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: () async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const CreatePostScreen()),
-                  );
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+                    );
                     if (result == true) {
-                      _refreshPosts();
+                      _fetchPosts();
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF003C44),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(16),
                   ),
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Novo Post', style: TextStyle(color: Colors.white)),
+                  child: const Icon(Icons.add, color: Colors.white),
                 ),
               ),
             ],
           ),
         ),
         Expanded(
-          child: RefreshIndicator(
-            onRefresh: _refreshPosts,
-            child: FutureBuilder<List<Post>>(
-              future: _posts,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No posts found.'));
-                } else {
-                  final posts = _searchController.text.isEmpty
-                      ? snapshot.data!
-                      : _filteredPosts;
-                  return ListView.builder(
-                    itemCount: posts.length,
-                    itemBuilder: (context, index) {
-                      return PostCard(post: posts[index]);
-                    },
-                  );
-                }
-              },
-            ),
-          ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+                  onRefresh: _fetchPosts,
+                  child: _displayedPosts.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Nenhum post encontrado.',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(top: 8),
+                          itemCount: _displayedPosts.length,
+                          itemBuilder: (context, index) {
+                            return PostCard(post: _displayedPosts[index]);
+                          },
+                        ),
+                ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCategoryFilters() {
+    if (_categories.isEmpty) return const SizedBox.shrink();
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = category == _selectedCategory;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: FilterChip(
+              label: Text(category),
+              selected: isSelected,
+              onSelected: (selected) => _selectCategory(category),
+              backgroundColor: Colors.white.withOpacity(0.1),
+              selectedColor: Colors.white,
+              labelStyle: TextStyle(
+                color: isSelected ? const Color(0xFF003C44) : Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              checkmarkColor: const Color(0xFF003C44),
+              shape: const StadiumBorder(),
+            ),
+          );
+        },
+      ),
     );
   }
 }
