@@ -71,7 +71,7 @@ class EventCard extends StatelessWidget {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
                     decoration: BoxDecoration(
                       color: isRegistered ? Colors.blue.shade600 : (event.registrationsOpen ? Colors.green.shade600 : Colors.red.shade600),
                       borderRadius: BorderRadius.circular(12.0),
@@ -79,11 +79,11 @@ class EventCard extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(isRegistered ? Icons.star : (event.registrationsOpen ? Icons.check_circle_outline : Icons.cancel_outlined), color: Colors.white, size: 14),
-                        const SizedBox(width: 4),
+                        Icon(isRegistered ? Icons.star : (event.registrationsOpen ? Icons.check_circle_outline : Icons.cancel_outlined), color: Colors.white, size: 16),
+                        const SizedBox(width: 5),
                         Text(
                           isRegistered ? 'Inscrito' : (event.registrationsOpen ? 'Aberto' : 'Fechado'),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ],
                     ),

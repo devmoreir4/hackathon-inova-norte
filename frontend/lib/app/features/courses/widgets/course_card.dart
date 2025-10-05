@@ -81,16 +81,23 @@ class CourseCard extends StatelessWidget {
               Positioned(
                 top: 8,
                 right: 8,
-                child: Chip(
-                  avatar: const Icon(Icons.star, color: Colors.white, size: 16),
-                  label: Text('+${course.pointsReward} pts'),
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00838A), // Sicoob medium theme color
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                  backgroundColor: const Color(0xFF00838A), // Sicoob medium theme color
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, color: Colors.white, size: 16),
+                      const SizedBox(width: 5),
+                      Text(
+                        '+${course.pointsReward} pts',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
