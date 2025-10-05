@@ -30,12 +30,10 @@ class CourseCard extends StatelessWidget {
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     String? imageUrl = course.imageUrl;
-    // If the image URL is a placeholder from example.com, replace it with a contextual one.
+    // Use picsum.photos as a reliable placeholder. The course ID is used as a seed for a unique image.
     if (imageUrl == null || imageUrl.contains('example.com')) {
-      // Use picsum.photos as a reliable placeholder. The course ID is used as a seed for a unique image.
       imageUrl = 'https://picsum.photos/seed/${course.id}/400/200';
     }
 
@@ -50,31 +48,50 @@ class CourseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: Image.network(
-              imageUrl,
-              height: 160,
-              fit: BoxFit.cover,
-              loadingBuilder: (context, child, progress) {
-                return progress == null
-                    ? child
-                    : const SizedBox(
-                        height: 160,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Image.network(
+                  imageUrl,
                   height: 160,
-                  color: Colors.grey[200],
-                  child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
-                );
-              },
-            ),
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, progress) {
+                    return progress == null
+                        ? child
+                        : const SizedBox(
+                            height: 160,
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 160,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
+                    );
+                  },
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Chip(
+                  avatar: const Icon(Icons.star, color: Colors.white, size: 16),
+                  label: Text('+${course.pointsReward} pts'),
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                  backgroundColor: Colors.black.withOpacity(0.6),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
