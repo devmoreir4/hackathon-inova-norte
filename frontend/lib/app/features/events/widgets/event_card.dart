@@ -6,9 +6,9 @@ import 'package:intl/intl.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
-  // The onRegister callback is no longer needed here
+  final bool isRegistered;
 
-  const EventCard({Key? key, required this.event}) : super(key: key);
+  const EventCard({Key? key, required this.event, required this.isRegistered}) : super(key: key);
 
   String _formatEventType(String eventType) {
     switch (eventType) {

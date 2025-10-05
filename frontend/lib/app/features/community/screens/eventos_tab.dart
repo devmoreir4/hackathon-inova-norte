@@ -22,6 +22,7 @@ class _EventosTabState extends State<EventosTab> {
   LinkedHashMap<DateTime, List<Event>> _allEventsByDay = LinkedHashMap();
   List<String> _eventTypes = [];
   String? _selectedEventType;
+  Map<int, int> _myRegistrations = {}; // Map<eventId, registrationId>
 
   // Calendar state
   DateTime _focusedDay = DateTime.now();
@@ -43,12 +44,22 @@ class _EventosTabState extends State<EventosTab> {
 
   Future<void> _fetchAndSetInitialEvents() async {
     try {
-      final allEvents = await _eventService.getAllEvents();
+      const userId = 1; // Placeholder for logged-in user
+      // Fetch events and user registrations in parallel
+      final results = await Future.wait([
+        _eventService.getAllEvents(),
+        _eventService.getRegistrationsForUser(userId),
+      ]);
+
+      final allEvents = results[0] as List<Event>;
+      final registrations = results[1] as List<dynamic>; // EventRegistration model is not created yet
+
       if (!mounted) return;
 
       _allEventsByDay = _groupEventsByDay(allEvents);
       _allUpcomingEvents = allEvents.where((e) => e.startDate.isAfter(DateTime.now())).toList();
       final types = LinkedHashSet<String>.from(_allUpcomingEvents.map((e) => e.eventType)).toList();
+      _myRegistrations = {for (var reg in registrations) reg.eventId: reg.id};
       
       setState(() {
         _eventTypes = ['Todos', ...types];
@@ -84,15 +95,12 @@ class _EventosTabState extends State<EventosTab> {
   void _applyFilters() {
     List<Event> events = _allUpcomingEvents;
 
-    // Filter by Event Type
     if (_selectedEventType != null && _selectedEventType != 'Todos') {
       events = events.where((e) => e.eventType == _selectedEventType).toList();
     }
 
-    // Then, filter by selected day (if any)
     if (_selectedDay != null) {
       final dayEvents = _getEventsForDay(_selectedDay!);
-      // Intersect with the already filtered list
       events = events.where((e) => dayEvents.contains(e)).toList();
     }
 
@@ -137,7 +145,7 @@ class _EventosTabState extends State<EventosTab> {
             child: ExpansionTile(
               title: Text(
                 'Exibir Calendário de Eventos',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFFFFFFFF)),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFF003C44)),
               ),
               leading: const Icon(Icons.calendar_today, color: Color(0xFF003C44)),
               iconColor: const Color(0xFF003C44),
@@ -205,7 +213,9 @@ class _EventosTabState extends State<EventosTab> {
                 child: ListView.builder(
                   itemCount: value.length,
                   itemBuilder: (context, index) {
-                    return EventCard(event: value[index]);
+                    final event = value[index];
+                    final isRegistered = _myRegistrations.containsKey(event.id);
+                    return EventCard(event: event, isRegistered: isRegistered);
                   },
                 ),
               );
