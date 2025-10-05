@@ -21,6 +21,22 @@ class EventService {
     }
   }
 
+  Future<List<Event>> getAllEvents() async {
+    try {
+      final response = await http.get(Uri.parse('$_baseUrl/events'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> body = json.decode(utf8.decode(response.bodyBytes));
+        List<Event> events = body.map((dynamic item) => Event.fromJson(item)).toList();
+        return events;
+      } else {
+        throw Exception('Failed to load all events. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load all events: $e');
+    }
+  }
+
   Future<void> registerForEvent(int eventId, int userId) async {
     try {
       // The backend endpoint for registration seems to take user_id as a query param

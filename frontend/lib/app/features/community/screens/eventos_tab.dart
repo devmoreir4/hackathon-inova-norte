@@ -1,10 +1,10 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:frontend/app/features/events/models/event.dart';
 import 'package:frontend/app/features/events/services/event_service.dart';
-import 'package:frontend/app/features/events/widgets/calendar_modal.dart';
 import 'package:frontend/app/features/events/widgets/event_card.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:collection';
+import 'package:table_calendar/table_calendar.dart';
 
 class EventosTab extends StatefulWidget {
   const EventosTab({Key? key}) : super(key: key);
@@ -15,158 +15,163 @@ class EventosTab extends StatefulWidget {
 
 class _EventosTabState extends State<EventosTab> {
   final EventService _eventService = EventService();
+  late final ValueNotifier<List<Event>> _displayedEvents;
+  LinkedHashMap<DateTime, List<Event>> _allEventsByDay = LinkedHashMap();
   List<Event> _allUpcomingEvents = [];
-  List<Event> _filteredEvents = [];
-  List<String> _eventTypes = [];
-  String? _selectedEventType;
-  bool _isLoading = true;
+
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
   @override
   void initState() {
     super.initState();
-    _fetchUpcomingEvents();
+    _displayedEvents = ValueNotifier([]);
+    _fetchAndSetInitialEvents();
   }
 
-  Future<void> _fetchUpcomingEvents() async {
-    setState(() { _isLoading = true; });
-    try {
-      final allEvents = await _eventService.getEventsForMonth(DateTime.now().year, DateTime.now().month);
-      final upcomingEvents = allEvents.where((e) => e.startDate.isAfter(DateTime.now())).toList();
-      final types = LinkedHashSet<String>.from(upcomingEvents.map((e) => e.eventType)).toList();
+  @override
+  void dispose() {
+    _displayedEvents.dispose();
+    super.dispose();
+  }
 
+  Future<void> _fetchAndSetInitialEvents() async {
+    try {
+      final allEvents = await _eventService.getAllEvents();
+      if (!mounted) return;
+
+      _allEventsByDay = _groupEventsByDay(allEvents);
+      _allUpcomingEvents = allEvents.where((e) => e.startDate.isAfter(DateTime.now())).toList();
+      
       setState(() {
-        _allUpcomingEvents = upcomingEvents;
-        _filteredEvents = upcomingEvents;
-        _eventTypes = ['Todos', ...types];
-        _selectedEventType = 'Todos';
-        _isLoading = false;
+        _displayedEvents.value = _allUpcomingEvents;
+        _selectedDay = null; // Start with no day selected
       });
+
     } catch (e) {
-      setState(() { _isLoading = false; });
+      // handle error
     }
   }
 
-  void _filterEvents(String eventType) {
+  LinkedHashMap<DateTime, List<Event>> _groupEventsByDay(List<Event> events) {
+    final map = LinkedHashMap<DateTime, List<Event>>();
+    for (var event in events) {
+      final day = DateTime.utc(event.startDate.year, event.startDate.month, event.startDate.day);
+      (map[day] ??= []).add(event);
+    }
+    return map;
+  }
+
+  List<Event> _getEventsForDay(DateTime day) {
+    final utcDay = DateTime.utc(day.year, day.month, day.day);
+    return _allEventsByDay[utcDay] ?? [];
+  }
+
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      _selectedEventType = eventType;
-      if (eventType == 'Todos') {
-        _filteredEvents = _allUpcomingEvents;
+      _focusedDay = focusedDay;
+      // If the user taps the same day again, clear the filter
+      if (isSameDay(_selectedDay, selectedDay)) {
+        _selectedDay = null;
+        _displayedEvents.value = _allUpcomingEvents;
       } else {
-        _filteredEvents = _allUpcomingEvents.where((e) => e.eventType == eventType).toList();
+        _selectedDay = selectedDay;
+        _displayedEvents.value = _getEventsForDay(selectedDay);
       }
     });
-  }
-
-  void _showCalendar() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.85,
-        maxChildSize: 0.9,
-        builder: (_, controller) => const CalendarModal(),
-      ),
-    );
-  }
-
-  String _formatEventType(String eventType) {
-    switch (eventType) {
-      case 'cooperative_fair': return 'Feira Cooperativa';
-      case 'lecture': return 'Palestra';
-      case 'business_round': return 'Rodada de Negócios';
-      case 'educational_activity': return 'Atividade Educativa';
-      case 'Todos': return 'Todos';
-      default: return 'Outro';
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: ElevatedButton.icon(
-            onPressed: _showCalendar,
-            icon: const Icon(Icons.calendar_today, color: Color(0xFF003C44)),
-            label: const Text('Ver Calendário Completo'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF003C44),
-              minimumSize: const Size(double.infinity, 48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ExpansionTile(
+              title: Text(
+                'Exibir Calendário de Eventos',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: const Color(0xFFFFFFFF)),
+              ),
+              leading: const Icon(Icons.calendar_today, color: Color(0xFF003C44)),
+              iconColor: const Color(0xFF003C44),
+              collapsedIconColor: const Color(0xFF003C44),
+              children: [
+                TableCalendar<Event>(
+                  locale: 'pt_BR',
+                  firstDay: DateTime.utc(2020, 1, 1),
+                  lastDay: DateTime.utc(2030, 12, 31),
+                  focusedDay: _focusedDay,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  calendarFormat: _calendarFormat,
+                  eventLoader: _getEventsForDay,
+                  startingDayOfWeek: StartingDayOfWeek.monday,
+                  onDaySelected: _onDaySelected,
+                  onPageChanged: (focusedDay) {
+                    // No need to fetch on page change as we have all events
+                    _focusedDay = focusedDay;
+                  },
+                  onFormatChanged: (format) {
+                    if (_calendarFormat != format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    }
+                  },
+                  calendarStyle: CalendarStyle(
+                    outsideDaysVisible: false,
+                    todayDecoration: BoxDecoration(
+                      color: const Color(0xFF00838A).withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    selectedDecoration: const BoxDecoration(
+                      color: Color(0xFF00838A),
+                      shape: BoxShape.circle,
+                    ),
+                    markerDecoration: const BoxDecoration(
+                      color: Color(0xFF98CE00),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  headerStyle: HeaderStyle(
+                    titleCentered: true,
+                    formatButtonShowsNext: false,
+                    titleTextStyle: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Text(
-            'Próximos Eventos',
-            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-        if (_eventTypes.isNotEmpty) _buildEventTypeFilters(),
+        const SizedBox(height: 8.0),
         Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : RefreshIndicator(
-                  onRefresh: _fetchUpcomingEvents,
-                  child: _filteredEvents.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Nenhum evento encontrado.',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.only(top: 8),
-                          itemCount: _filteredEvents.length,
-                          itemBuilder: (context, index) {
-                            return EventCard(event: _filteredEvents[index]);
-                          },
-                        ),
+          child: ValueListenableBuilder<List<Event>>(
+            valueListenable: _displayedEvents,
+            builder: (context, value, _) {
+              if (value.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "Nenhum evento encontrado.",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                );
+              }
+              return RefreshIndicator(
+                onRefresh: _fetchAndSetInitialEvents,
+                child: ListView.builder(
+                  itemCount: value.length,
+                  itemBuilder: (context, index) {
+                    return EventCard(event: value[index]);
+                  },
                 ),
+              );
+            },
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildEventTypeFilters() {
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: _eventTypes.length,
-        itemBuilder: (context, index) {
-          final type = _eventTypes[index];
-          final isSelected = type == _selectedEventType;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: FilterChip(
-              label: Text(_formatEventType(type)),
-              selected: isSelected,
-              onSelected: (selected) => _filterEvents(type),
-              backgroundColor: Colors.white.withOpacity(0.1),
-              selectedColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? const Color(0xFF003C44) : Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              checkmarkColor: const Color(0xFF003C44),
-              shape: StadiumBorder(
-                side: BorderSide(color: Colors.white.withOpacity(0.3)),
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
 }
