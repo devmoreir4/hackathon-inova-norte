@@ -77,25 +77,28 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(16.0),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final message = _messages[index];
-                  return _ChatMessageBubble(
-                    text: message['text'],
-                    isUser: message['isUser'],
-                    sources: message['sources'],
-                  );
-                },
+              child: Stack(
+                children: [
+                  ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return _ChatMessageBubble(
+                        text: message['text'],
+                        isUser: message['isUser'],
+                        sources: message['sources'],
+                      );
+                    },
+                  ),
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(color: Color(0xFF93C83E)),
+                    ),
+                ],
               ),
             ),
-            if (_isLoading)
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: LinearProgressIndicator(color: Color(0xFF93C83E)),
-              ),
             _buildMessageInput(),
           ],
         ),
