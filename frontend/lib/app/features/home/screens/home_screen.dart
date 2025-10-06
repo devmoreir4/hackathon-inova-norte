@@ -32,11 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _selectedIndex == 0 ? AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        // Removido toolbarHeight para usar o padrão
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
-          child: Image.asset(
-            'assets/logo.png',
-            height: 200,
+          child: SizedBox(
+            height: 40, // Diminuído em 5 vezes
+            child: Image.asset(
+              'assets/logo.png',
+              height: 40, // Diminuído em 5 vezes
+            ),
           ),
         ),
         actions: [
@@ -106,11 +110,21 @@ class _HomeContentState extends State<_HomeContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Título "Bem-vindo Ana Silva Santos"
+                    const Text(
+                      'Bem-vindo\nAna Silva Santos',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     // Card de Saldo Disponível
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF072C30), // Background do card de saldo sólido
+                        color: const Color(0xFF072C30),
                         borderRadius: BorderRadius.circular(10),
                         // Removida a boxShadow
                       ),
@@ -119,7 +133,7 @@ class _HomeContentState extends State<_HomeContent> {
                         children: [
                           const Text(
                             'Saldo disponível',
-                            style: TextStyle(color: Colors.white, fontSize: 16), // Texto branco
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           const SizedBox(height: 8),
                           Row(
@@ -128,7 +142,7 @@ class _HomeContentState extends State<_HomeContent> {
                               Text(
                                 _showBalance ? 'R\$ 2.546,30' : 'R\$ ****,**',
                                 style: const TextStyle(
-                                  color: Color(0xFF75C044), // Cor dos números do saldo
+                                  color: Color(0xFF75C044),
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -136,7 +150,7 @@ class _HomeContentState extends State<_HomeContent> {
                               IconButton(
                                 icon: Icon(
                                   _showBalance ? Icons.visibility : Icons.visibility_off,
-                                  color: Colors.white, // Ícone branco
+                                  color: Colors.white,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -149,7 +163,7 @@ class _HomeContentState extends State<_HomeContent> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16), // Espaçamento entre os cards
+                    const SizedBox(height: 16),
                     // Card de Lançamentos Futuros (Restaurado)
                     InkWell(
                       onTap: () {
@@ -158,7 +172,7 @@ class _HomeContentState extends State<_HomeContent> {
                       child: Container(
                         padding: const EdgeInsets.all(16.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF072C30), // Mesma cor do card de saldo
+                          color: const Color(0xFF072C30),
                           borderRadius: BorderRadius.circular(10),
                           // Removida a boxShadow
                         ),

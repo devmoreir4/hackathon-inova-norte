@@ -16,9 +16,10 @@ class _CommunityScreenState extends State<CommunityScreen> {
     return DefaultTabController(
       length: 3, // Fórum, Cursos, Eventos
       child: Scaffold(
+        backgroundColor: const Color(0xFF04575c), // Cor de fundo do chat
         appBar: AppBar(
           title: const Text('Comunidade'),
-          backgroundColor: const Color(0xFF003C44), // Cor consistente com o tema
+          backgroundColor: const Color(0xFF04575c), // Cor de fundo do chat
           bottom: const TabBar(
             indicatorColor: Colors.white,
             labelColor: Colors.white,
