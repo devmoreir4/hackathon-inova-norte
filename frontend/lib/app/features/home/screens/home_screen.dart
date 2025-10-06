@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/features/chat/screens/chat_screen.dart';
 import 'package:frontend/app/features/community/screens/community_screen.dart';
+import 'package:frontend/app/features/rank/screens/rank_screen.dart'; // Importar RankScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const _HomeContent(),
     const ChatScreen(),
     const CommunityScreen(),
+    const RankScreen(), // Adicionar RankScreen
   ];
 
   void _onItemTapped(int index) {
@@ -62,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.white70,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
+        enableFeedback: false,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -74,6 +77,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Comunidade',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.leaderboard), // Ícone para Ranking
+            label: 'Ranking',
           ),
         ],
       ),
@@ -112,7 +119,7 @@ class _HomeContentState extends State<_HomeContent> {
                   children: [
                     // Título "Bem-vindo Ana Silva Santos" melhorado
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start, // Alinhar à esquerda
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
                           'Bem-vindo',
@@ -124,7 +131,6 @@ class _HomeContentState extends State<_HomeContent> {
                         ),
                         const SizedBox(height: 4),
                         Row(
-                          // Removido mainAxisAlignment: MainAxisAlignment.center
                           children: [
                             const Icon(Icons.person, color: Colors.white, size: 24),
                             const SizedBox(width: 8),

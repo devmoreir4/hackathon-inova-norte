@@ -22,7 +22,8 @@ class _ChatScreenState extends State<ChatScreen> {
     'O que é cooperativismo?',
     'Quais os benefícios de ser um cooperado Sicoob?',
     'Como posso investir no Sicoob?',
-    'Como posso iniciar minha educação financeira?',    'Onde encontro as agências Sicoob?',
+    'Como posso iniciar minha educação financeira?',
+    // 'Onde encontro as agências Sicoob?',
   ];
 
   @override
