@@ -32,14 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _selectedIndex == 0 ? AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        // Removido toolbarHeight para usar o padrão
+        toolbarHeight: kToolbarHeight,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: SizedBox(
-            height: 40, // Diminuído em 5 vezes
+            height: 40,
             child: Image.asset(
               'assets/logo.png',
-              height: 40, // Diminuído em 5 vezes
+              height: 40,
             ),
           ),
         ),
@@ -110,14 +110,35 @@ class _HomeContentState extends State<_HomeContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título "Bem-vindo Ana Silva Santos"
-                    const Text(
-                      'Bem-vindo\nAna Silva Santos',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    // Título "Bem-vindo Ana Silva Santos" melhorado
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start, // Alinhar à esquerda
+                      children: [
+                        const Text(
+                          'Bem-vindo',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          // Removido mainAxisAlignment: MainAxisAlignment.center
+                          children: [
+                            const Icon(Icons.person, color: Colors.white, size: 24),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Ana Silva Santos',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     // Card de Saldo Disponível
