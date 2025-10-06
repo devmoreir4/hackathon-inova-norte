@@ -1,19 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/app/features/courses/models/course.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;
 
   const CourseCard({Key? key, required this.course}) : super(key: key);
 
-  @override
+  String _getKeywordForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'financial_education':
+        return 'finance';
+      case 'cooperativism':
+        return 'community';
+      case 'business':
+        return 'business';
+      default:
+        return 'technology';
+    }
+  }
+
+  Future<void> _launchURL(BuildContext context) async {
+    final Uri url = Uri.parse('https://www.sicoob.com.br');
+    if (!await launchUrl(url)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possível abrir o link: $url')),
+      );
+    }
+  }
+
   Widget build(BuildContext context) {
     String? imageUrl = course.imageUrl;
-    // Temporary fix: If the image URL is a placeholder from example.com, replace it.
-    if (imageUrl != null && imageUrl.contains('example.com')) {
-      // Use a placeholder service like picsum.photos with the course ID for a unique image
-      imageUrl = 'https://picsum.photos/seed/${course.id}/400/200';
+    // Use picsum.photos as a reliable placeholder. The course ID is used as a seed for a unique image.
+    if (imageUrl == null || imageUrl.contains('example.com')) {
+      // Use picsum.photos as a reliable placeholder. Add a number to the seed to get a new set of images.
+      imageUrl = 'https://picsum.photos/seed/${course.id + 100}/400/200';
     }
 
     return Card(
@@ -27,37 +49,58 @@ class CourseCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: imageUrl != null
-                ? Image.network(
-                    imageUrl,
-                    height: 160,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      return progress == null
-                          ? child
-                          : const SizedBox(
-                              height: 160,
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 160,
-                        color: Colors.grey[200],
-                        child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
-                      );
-                    },
-                  )
-                : Container(
-                    height: 160,
-                    color: Colors.grey[200],
-                    child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: Image.network(
+                  imageUrl,
+                  height: 160,
+                  width: double.infinity, // Force image to fill width
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, progress) {
+                    return progress == null
+                        ? child
+                        : const SizedBox(
+                            height: 160,
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 160,
+                      color: Colors.grey[200],
+                      child: Icon(Icons.school_outlined, size: 50, color: Colors.grey[400]),
+                    );
+                  },
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00838A), // Sicoob medium theme color
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star, color: Colors.white, size: 16),
+                      const SizedBox(width: 5),
+                      Text(
+                        '+${course.pointsReward} pts',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -86,29 +129,25 @@ class CourseCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Implement navigation to course details screen
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF98CE00), // Sicoob green
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      elevation: 2,
+                ElevatedButton(
+                  onPressed: () => _launchURL(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00838A), // Sicoob medium theme color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    child: Text(
-                      'Quero aprender',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        color: Colors.white,
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    elevation: 2,
+                  ),
+                  child: Text(
+                    'Quero aprender',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.white,
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),

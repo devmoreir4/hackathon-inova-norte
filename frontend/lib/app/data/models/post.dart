@@ -2,6 +2,7 @@ class Post {
   final int id;
   final String title;
   final String content;
+  final String category;
   final int authorId;
   final DateTime createdAt;
   final int likes_count;
@@ -11,6 +12,7 @@ class Post {
     required this.id,
     required this.title,
     required this.content,
+    required this.category,
     required this.authorId,
     required this.createdAt,
     required this.likes_count,
@@ -22,6 +24,7 @@ class Post {
       id: json['id'],
       title: json['title'],
       content: json['content'],
+      category: json['category'] ?? 'Geral', // Default category if null
       authorId: json['author_id'],
       createdAt: DateTime.parse(json['created_at']),
       likes_count: json['likes_count'] ?? 0,
